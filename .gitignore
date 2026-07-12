@@ -15,6 +15,7 @@ requirements.txt.log
 # --- Local AI & Databases (Docker Persistent Volumes) ---
 chroma_db/
 ollama_models/
+uploaded_docs/
 
 # --- Environment & OS Files ---
 .env
