@@ -1,0 +1,10 @@
+node_modules/
+.next/
+__pycache__/
+.venv/
+chroma_db/
+ollama_models/
+.env
+package-lock.json
+pnpm-lock.yaml
+api/

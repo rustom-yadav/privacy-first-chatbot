@@ -1,0 +1,21 @@
+
+# --- Frontend (Next.js) ---
+node_modules/
+.next/
+out/
+.env*.local
+
+# --- Backend (Python & FastAPI) ---
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+requirements.txt.log
+
+# --- Local AI & Databases (Docker Persistent Volumes) ---
+chroma_db/
+ollama_models/
+
+# --- Environment & OS Files ---
+.env
+.DS_Store
