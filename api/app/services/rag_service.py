@@ -27,8 +27,8 @@ class RAGService:
         
         # Initialize Text Splitter
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=200,
+            chunk_size=settings.CHUNK_SIZE,
+            chunk_overlap=settings.CHUNK_OVERLAP,
             length_function=len,
         )
 
@@ -57,6 +57,7 @@ class RAGService:
         except Exception as e:
             logger.error(f"Error during document ingestion: {e}")
             raise e
+            # return False
 
     def get_retriever(self, search_kwargs={"k": 4}):
         """
