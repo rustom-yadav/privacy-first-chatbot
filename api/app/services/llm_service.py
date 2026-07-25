@@ -1,13 +1,14 @@
 import logging
+from pathlib import Path
+
 from langchain_community.llms import Ollama
-from langchain_classic.chains import create_retrieval_chain
-from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 
 from app.config import settings
 from app.services.rag_service import rag_service
 
 logger = logging.getLogger(__name__)
+
 
 class LLMService:
     def __init__(self):
@@ -32,31 +33,61 @@ class LLMService:
         Context: {context}
         
         Question: {input}
+        
+        Answer:
         """)
 
     def generate_response(self, query: str) -> str:
         """
-        Takes a user query, retrieves relevant context from Chroma, and generates a response using Ollama.
+        1. Checks ChromaDB has documents.
+        2. Retrieves top-k diverse chunks via MMR.
+        3. Formats each chunk with [File | Page] header.
+        4. Passes formatted context to LLM prompt and returns the answer.
         """
         try:
-            # Get the retriever from rag_service (configured to fetch top 3 most relevant chunks)
-            retriever = rag_service.get_retriever(search_kwargs={"k": 5})
-            
-            # Create a chain that takes a list of documents and formats them into a prompt
-            document_chain = create_stuff_documents_chain(self.llm, self.prompt)
-            
-            # Create the final retrieval chain that combines retriever and document_chain
-            retrieval_chain = create_retrieval_chain(retriever, document_chain)
-            
-            # Run the query
-            response = retrieval_chain.invoke({"input": query})
-            
-            # Extract and return just the answer text
-            return response.get('answer', "Sorry, I couldn't generate an answer.")
-            
+            # Guard: don't call LLM if no documents are indexed yet
+            stats = rag_service.get_collection_stats()
+            if stats.get("total_chunks", 0) == 0:
+                return (
+                    "No documents are currently indexed. "
+                    "Please upload a PDF first and wait for ingestion to complete."
+                )
+
+            # Retrieve diverse chunks using MMR
+            retriever = rag_service.get_retriever(
+                search_type="mmr",
+                search_kwargs={"k": 5, "fetch_k": 12}
+            )
+            docs = retriever.invoke(query)
+
+            if not docs:
+                return "No relevant content found in the uploaded documents for your question."
+
+            # Format each chunk with clear source attribution
+            formatted_chunks = []
+            for doc in docs:
+                src_path = doc.metadata.get("source", "")
+                filename = doc.metadata.get("filename") or Path(src_path).name or "Document"
+                # PyPDFLoader uses 0-based page index; convert to 1-based for display
+                page_raw = doc.metadata.get("page", 0)
+                page = (page_raw + 1) if isinstance(page_raw, int) else page_raw
+                content = doc.page_content.strip()
+                formatted_chunks.append(f"[File: {filename} | Page {page}]\n{content}")
+
+            formatted_context = "\n\n---\n\n".join(formatted_chunks)
+
+            # Run the prompt | LLM chain
+            chain = self.prompt | self.llm
+            response = chain.invoke({"context": formatted_context, "input": query})
+            return str(response).strip() if response else "Could not generate an answer."
+
         except Exception as e:
             logger.error(f"Error generating response: {e}")
-            return "There was an error generating the response. Please ensure Ollama is running and documents are successfully ingested."
+            return (
+                "There was an error generating the response. "
+                "Please ensure Ollama is running and at least one document is ingested."
+            )
+
 
 # Singleton instance to be used by the chat endpoint
 llm_service = LLMService()

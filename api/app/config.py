@@ -19,8 +19,8 @@ class Settings(BaseSettings):
     OLLAMA_HOST: str = "http://localhost:11434"
     LLM_MODEL: str = "llama3.2"
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2" # hugging face embedding model
-    CHUNK_SIZE: int = 1000
-    CHUNK_OVERLAP: int = 200
+    CHUNK_SIZE: int = 500
+    CHUNK_OVERLAP: int = 100
 
     # override form .env files variables
     model_config = SettingsConfigDict(
