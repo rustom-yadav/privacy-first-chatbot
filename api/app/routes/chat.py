@@ -37,3 +37,13 @@ async def chat_with_bot(request: ChatRequest):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
+
+
+@router.delete("/history")
+async def clear_chat_history():
+    """
+    Clears the conversation history.
+    Call this when the user wants to start a fresh conversation.
+    """
+    llm_service.clear_history()
+    return {"status": "success", "message": "Conversation history cleared."}

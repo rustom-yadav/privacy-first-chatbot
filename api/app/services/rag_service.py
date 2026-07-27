@@ -25,6 +25,31 @@ class RAGService:
             length_function=len,
         )
 
+        self.bm25_retriever = None
+        self._init_bm25()
+
+    def _init_bm25(self):
+        """
+        Loads all existing documents from ChromaDB and initializes the BM25 index.
+        """
+        try:
+            data = self.vector_store.get()
+            if data and data.get("documents"):
+                from langchain_core.documents import Document
+                from langchain_community.retrievers import BM25Retriever
+
+                docs = [
+                    Document(page_content=text, metadata=meta)
+                    for text, meta in zip(data["documents"], data["metadatas"])
+                ]
+                self.bm25_retriever = BM25Retriever.from_documents(docs)
+                logger.info(f"Initialized BM25 Retriever with {len(docs)} documents.")
+            else:
+                self.bm25_retriever = None
+        except Exception as e:
+            logger.error(f"Error initializing BM25: {e}")
+            self.bm25_retriever = None
+
     def _delete_existing_chunks(self, filename: str) -> None:
         """
         Deletes all existing chunks for a given filename from ChromaDB.
@@ -72,20 +97,49 @@ class RAGService:
             logger.info(
                 f"Successfully ingested {resolved_path.name} ({len(chunks)} chunks)"
             )
+            
+            # Rebuild BM25 index with new documents
+            self._init_bm25()
 
             return True
         except Exception as e:
             logger.error(f"Error during document ingestion: {e}")
             raise e
 
-    def get_retriever(self, search_type: str = "mmr", search_kwargs: dict = None):
+    def get_similarity_retriever(self, k: int = None):
         """
-        Returns a retriever for the vector store.
-        Defaults to MMR (Maximal Marginal Relevance) — fetches k=5 diverse chunks
-        from a candidate pool of fetch_k=12, avoiding redundant/duplicate content.
+        Returns a retriever that uses pure cosine-similarity search.
+        Best for finding the most semantically relevant chunks.
+        """
+        k = k or settings.RETRIEVER_K
+        return self.vector_store.as_retriever(
+            search_type="similarity", search_kwargs={"k": k}
+        )
+
+    def get_mmr_retriever(self, k: int = None, fetch_k: int = None, lambda_mult: float = 0.5):
+        """
+        Returns a retriever that uses Maximal Marginal Relevance (MMR).
+        Balances relevance with diversity — avoids returning near-duplicate chunks.
+
+        Args:
+            k: Number of final chunks to return.
+            fetch_k: Number of candidates to fetch before MMR re-ranking (should be > k).
+            lambda_mult: Diversity factor (0 = max diversity, 1 = max relevance).
+        """
+        k = k or settings.RETRIEVER_K
+        fetch_k = fetch_k or (k * 2)
+        return self.vector_store.as_retriever(
+            search_type="mmr",
+            search_kwargs={"k": k, "fetch_k": fetch_k, "lambda_mult": lambda_mult},
+        )
+
+    def get_retriever(self, search_type: str = "similarity", search_kwargs: dict = None):
+        """
+        Generic retriever factory — kept for backward compatibility.
+        Prefer get_similarity_retriever() or get_mmr_retriever() for clarity.
         """
         if search_kwargs is None:
-            search_kwargs = {"k": 5, "fetch_k": 12}
+            search_kwargs = {"k": settings.RETRIEVER_K}
         return self.vector_store.as_retriever(
             search_type=search_type, search_kwargs=search_kwargs
         )

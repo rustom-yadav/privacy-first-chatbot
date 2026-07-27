@@ -8,7 +8,7 @@ router = APIRouter()
 
 
 @router.post("/upload")
-async def upload_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+async def upload_pdf(file: UploadFile = File(...)):
     """
     Endpoint to receive sensitive PDFs from the frontend.
     Validates the format, streams the file to a secure local path,
@@ -38,13 +38,13 @@ async def upload_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(
         # Always close the file stream to prevent background memory leaks
         file.file.close()
 
-    # 4. Trigger RAG Ingestion in the background so API returns fast
-    background_tasks.add_task(rag_service.ingest_document, file_path)
+    # 4. Run RAG Ingestion SYNCHRONOUSLY so the frontend waits for it to finish
+    rag_service.ingest_document(file_path)
 
     # 5. Success Response
     return {
         "status": "success",
         "filename": file.filename,
         "saved_at": str(file_path),
-        "message": "File successfully uploaded. Ingestion has started in the background.",
+        "message": "File successfully uploaded and fully ingested. You can now start asking questions!",
     }

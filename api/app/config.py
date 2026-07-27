@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 500
     CHUNK_OVERLAP: int = 100
 
+    # Retrieval Pipeline Configs
+    RETRIEVER_K: int = 20          # per-retriever fetch count
+    ENSEMBLE_TOP_N: int = 15       # final chunk count after RRF fusion
+    MAX_HISTORY_TURNS: int = 10    # max conversation turns (1 turn = 1 human + 1 AI)
+
     # override form .env files variables
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",
