@@ -8,7 +8,6 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-
 class RAGService:
     def __init__(self):
         self.embeddings = HuggingFaceEmbeddings(model_name=settings.EMBEDDING_MODEL)
