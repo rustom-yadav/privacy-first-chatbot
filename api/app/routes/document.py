@@ -1,50 +1,122 @@
-import shutil
-from fastapi import APIRouter, File, UploadFile, HTTPException, status, BackgroundTasks
-from app.config import settings
-from app.services.rag_service import rag_service
+"""
+Document management routes — upload, list, and delete PDF documents.
 
-# Initialize the router component
+Security:
+    - Filename sanitization (prevents path traversal)
+    - File size validation (MAX_UPLOAD_SIZE_MB)
+    - PDF-only format check
+    - Rate limited uploads
+    - No internal paths exposed in responses
+
+Ingestion runs in asyncio.to_thread() to avoid blocking the event loop.
+"""
+
+import asyncio
+import logging
+from pathlib import Path
+
+from fastapi import APIRouter, File, Request, UploadFile
+
+from app.config import settings
+from app.exceptions import (
+    DocumentIngestionError,
+    FileTooLargeError,
+    InvalidFileFormatError,
+)
+from app.middleware.rate_limiter import limiter
+from app.models.schemas import APIResponse, DocumentInfo, UploadResponseData
+
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 
-@router.post("/upload")
-async def upload_pdf(file: UploadFile = File(...)):
+@router.post("/upload", response_model=APIResponse[UploadResponseData])
+@limiter.limit(settings.RATE_LIMIT_UPLOAD)
+async def upload_pdf(request: Request, file: UploadFile = File(...)):
     """
-    Endpoint to receive sensitive PDFs from the frontend.
-    Validates the format, streams the file to a secure local path,
-    and prepares it for the RAG ingestion pipeline.
+    Upload a PDF document for RAG ingestion.
+
+    Security checks:
+        1. File format must be .pdf
+        2. File size must be under MAX_UPLOAD_SIZE_MB
+        3. Filename is sanitized to prevent path traversal
     """
-    # 1. Validation: Ensure the uploaded file is strictly a PDF for privacy control
-    if not file.filename.lower().endswith(".pdf"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid file format! Only secure PDF documents are allowed.",
+    from app.services.rag_service import rag_service
+
+    # 1. Validate file format
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
+        raise InvalidFileFormatError()
+
+    # 2. Sanitize filename — prevents path traversal attacks
+    # Path("../../evil.pdf").name → "evil.pdf"
+    secure_name = Path(file.filename).name
+    if not secure_name or ".." in secure_name:
+        raise InvalidFileFormatError("Invalid filename.")
+
+    # 3. Read file content and check size
+    content = await file.read()
+    max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
+
+    if len(content) > max_bytes:
+        raise FileTooLargeError(
+            f"File size ({len(content) / (1024 * 1024):.1f} MB) exceeds "
+            f"the maximum allowed size of {settings.MAX_UPLOAD_SIZE_MB} MB."
         )
 
-    # 2. Setup the target destination storage path using Pathlib
-    file_path = settings.UPLOAD_DIR / file.filename
+    # 4. Save to disk securely
+    file_path = settings.UPLOAD_DIR / secure_name
 
     try:
-        # 3. Stream write operation to save the file chunks on the disk securely
-        with file_path.open("wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
+        file_path.write_bytes(content)
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to save the file locally: {str(e)}",
-        )
+        logger.error(f"Failed to save file: {e}")
+        raise DocumentIngestionError(f"Failed to save file to disk: {e}")
     finally:
-        # Always close the file stream to prevent background memory leaks
-        file.file.close()
+        await file.close()
 
-    # 4. Run RAG Ingestion SYNCHRONOUSLY so the frontend waits for it to finish
-    rag_service.ingest_document(file_path)
+    # 5. Run RAG ingestion in a thread to avoid blocking the event loop
+    chunk_count = await asyncio.to_thread(rag_service.ingest_document, file_path)
 
-    # 5. Success Response
-    return {
-        "status": "success",
-        "filename": file.filename,
-        "saved_at": str(file_path),
-        "message": "File successfully uploaded and fully ingested. You can now start asking questions!",
-    }
+    return APIResponse(
+        success=True,
+        data=UploadResponseData(
+            filename=secure_name,
+            chunk_count=chunk_count,
+            message="File uploaded and ingested successfully. You can now ask questions!",
+        ),
+    )
+
+
+@router.get("/list", response_model=APIResponse[list[DocumentInfo]])
+async def list_documents(request: Request):
+    """Returns a list of all ingested documents with their chunk counts."""
+    from app.services.rag_service import rag_service
+
+    docs = await asyncio.to_thread(rag_service.list_documents)
+
+    return APIResponse(
+        success=True,
+        data=[DocumentInfo(**doc) for doc in docs],
+    )
+
+
+@router.delete("/{filename}", response_model=APIResponse)
+async def delete_document(request: Request, filename: str):
+    """
+    Deletes a document and all its vectors from ChromaDB.
+    Also removes the file from disk if it exists.
+    """
+    from app.services.rag_service import rag_service
+
+    # Sanitize filename
+    secure_name = Path(filename).name
+    if not secure_name or ".." in secure_name:
+        raise InvalidFileFormatError("Invalid filename.")
+
+    await asyncio.to_thread(rag_service.delete_document, secure_name)
+
+    return APIResponse(
+        success=True,
+        data={"message": f"Document '{secure_name}' deleted successfully."},
+    )

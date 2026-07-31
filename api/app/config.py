@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # to set Base directory paths
@@ -8,12 +9,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 class Settings(BaseSettings):
     # App General Settings
     APP_NAME: str = "Privacy-First-Chatbot"
-    DEBUG: bool = True
+    DEBUG: bool = False  # Default to False for production safety
     PORT: int = 8000
 
     # Storage Paths
     UPLOAD_DIR: Path = BASE_DIR / "uploaded_docs"
     CHROMA_DB_DIR: Path = BASE_DIR / "chroma_db"
+    DB_DIR: Path = BASE_DIR / "local_db"  # SQLite session storage
 
     # AI Configs (Local defaults)
     OLLAMA_HOST: str = "http://localhost:11434"
@@ -23,9 +25,20 @@ class Settings(BaseSettings):
     CHUNK_OVERLAP: int = 100
 
     # Retrieval Pipeline Configs
-    RETRIEVER_K: int = 20          # per-retriever fetch count
-    ENSEMBLE_TOP_N: int = 15       # final chunk count after RRF fusion
-    MAX_HISTORY_TURNS: int = 10    # max conversation turns (1 turn = 1 human + 1 AI)
+    RETRIEVER_K: int = 20  # per-retriever fetch count
+    ENSEMBLE_TOP_N: int = 15  # final chunk count after RRF fusion
+
+    # Session & History Configs
+    MAX_HISTORY_TURNS: int = 10  # max conversation turns (1 turn = 1 human + 1 AI)
+
+    # Security Configs
+    MAX_UPLOAD_SIZE_MB: int = 50  # max file upload size in MB
+    MAX_QUERY_LENGTH: int = 2000  # max characters in a chat query
+    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]  # CORS allowed origins
+
+    # Rate Limiting
+    RATE_LIMIT_CHAT: str = "10/minute"  # rate limit for chat endpoint
+    RATE_LIMIT_UPLOAD: str = "5/minute"  # rate limit for upload endpoint
 
     # override form .env files variables
     model_config = SettingsConfigDict(
@@ -40,3 +53,4 @@ settings = Settings()
 # Ensure directories exist locally
 settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 settings.CHROMA_DB_DIR.mkdir(parents=True, exist_ok=True)
+settings.DB_DIR.mkdir(parents=True, exist_ok=True)

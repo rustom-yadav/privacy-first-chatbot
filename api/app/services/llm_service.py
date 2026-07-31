@@ -1,12 +1,27 @@
+"""
+LLM Service — Core RAG response generation engine.
+
+Responsibilities:
+    1. Builds and caches the EnsembleRetriever (Similarity + MMR + BM25)
+    2. Retrieves and formats context chunks with source attribution
+    3. Manages per-session history via SessionService (SQLite)
+    4. Invokes the local LLM (ChatOllama) and returns answer + sources
+
+The ensemble retriever is cached and only rebuilt when documents change
+(tracked via rag_service._docs_version).
+"""
+
 import logging
 from pathlib import Path
 
-from langchain_ollama import ChatOllama
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_classic.retrievers import EnsembleRetriever
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_ollama import ChatOllama
 
 from app.config import settings
+from app.exceptions import LLMConnectionError, RetrievalError
 from app.services.rag_service import rag_service
+from app.services.session_service import session_service
 
 logger = logging.getLogger(__name__)
 
@@ -19,12 +34,12 @@ class LLMService:
         1. Similarity Search  — pure cosine-distance semantic matching
         2. MMR Search         — semantic relevance + diversity (avoids near-duplicate chunks)
         3. BM25 Search        — exact keyword/term matching (catches what embeddings miss)
-        4. EnsembleRetriever  — fuses all 3 via Reciprocal Rank Fusion (RRF) with configurable weights
+        4. EnsembleRetriever  — fuses all 3 via Reciprocal Rank Fusion (RRF)
 
-    History Management:
-        - Capped at MAX_HISTORY_TURNS (default 10 turns = 20 messages)
-        - Auto-trims oldest messages when limit is exceeded
-        - clear_history() resets conversation state
+    Session Management:
+        - Per-session history stored in SQLite (survives server restarts)
+        - Capped at MAX_HISTORY_TURNS per session
+        - No login required — anonymous session IDs
     """
 
     # Ensemble weights: [Similarity, MMR, BM25]
@@ -40,9 +55,7 @@ class LLMService:
             )
         except Exception as e:
             logger.error(f"Failed to initialize Ollama LLM: {e}")
-            raise
-
-        self.history: list = []
+            raise LLMConnectionError(f"Could not connect to Ollama: {e}")
 
         self.system_instruction = (
             "You are a helpful, privacy-first AI assistant.\n"
@@ -53,14 +66,30 @@ class LLMService:
             "Keep the answer concise, accurate, and strictly based on the provided context."
         )
 
+        # Ensemble cache — rebuilt only when documents change
+        self._cached_ensemble: EnsembleRetriever | None = None
+        self._cached_docs_version: int = -1
+
     # ── Retrieval Pipeline ────────────────────────────────────────────
 
-    def _build_ensemble_retriever(self) -> EnsembleRetriever | None:
+    def _get_ensemble_retriever(self) -> EnsembleRetriever:
+        """
+        Returns a cached EnsembleRetriever, rebuilding only when documents change.
+        Uses rag_service._docs_version to detect changes.
+        """
+        current_version = rag_service._docs_version
+
+        if current_version != self._cached_docs_version or self._cached_ensemble is None:
+            self._cached_ensemble = self._build_ensemble_retriever()
+            self._cached_docs_version = current_version
+            logger.info(f"Ensemble retriever rebuilt (docs_version={current_version})")
+
+        return self._cached_ensemble
+
+    def _build_ensemble_retriever(self) -> EnsembleRetriever:
         """
         Builds an EnsembleRetriever combining Similarity, MMR, and BM25 retrievers.
         Uses LangChain's built-in Reciprocal Rank Fusion (RRF) for merging results.
-
-        Returns None if no documents are ingested yet.
         """
         k = settings.RETRIEVER_K
 
@@ -68,7 +97,9 @@ class LLMService:
         similarity_retriever = rag_service.get_similarity_retriever(k=k)
 
         # 2. MMR Retriever — semantic relevance + diversity
-        mmr_retriever = rag_service.get_mmr_retriever(k=k, fetch_k=k * 2, lambda_mult=0.5)
+        mmr_retriever = rag_service.get_mmr_retriever(
+            k=k, fetch_k=k * 2, lambda_mult=0.5
+        )
 
         # 3. BM25 Retriever — keyword/term matching
         bm25_retriever = rag_service.bm25_retriever
@@ -82,49 +113,42 @@ class LLMService:
             retrievers.append(bm25_retriever)
             weights.append(self.ENSEMBLE_WEIGHTS[2])
 
-            # Re-normalize weights to sum to 1.0
-            total = sum(weights)
-            weights = [w / total for w in weights]
+        # Normalize weights to sum to 1.0
+        total = sum(weights)
+        weights = [w / total for w in weights]
 
-            logger.info(
-                f"Ensemble built: Similarity + MMR + BM25 "
-                f"(weights: {[round(w, 2) for w in weights]}, k={k})"
-            )
-        else:
-            # No BM25 available — only Similarity + MMR
-            total = sum(weights)
-            weights = [w / total for w in weights]
-
-            logger.info(
-                f"Ensemble built: Similarity + MMR only "
-                f"(BM25 unavailable — no documents ingested yet?)"
-            )
+        retriever_names = "Similarity + MMR" + (" + BM25" if bm25_retriever else "")
+        logger.info(
+            f"Ensemble: {retriever_names} "
+            f"(weights={[round(w, 2) for w in weights]}, k={k})"
+        )
 
         return EnsembleRetriever(retrievers=retrievers, weights=weights)
 
     def _retrieve_context(self, query: str) -> list:
         """
-        Retrieves and fuses documents from all retrievers using the ensemble pipeline.
+        Retrieves and fuses documents from all retrievers.
 
         Returns:
             List of top-N fused Document objects, or empty list if nothing found.
-        """
-        ensemble = self._build_ensemble_retriever()
-        if ensemble is None:
-            return []
 
+        Raises:
+            RetrievalError: If the retrieval pipeline fails.
+        """
         try:
+            ensemble = self._get_ensemble_retriever()
             docs = ensemble.invoke(query)
 
-            # Take only top-N results from the fused output
+            # Take only top-N from fused results
             top_n = settings.ENSEMBLE_TOP_N
             docs = docs[:top_n]
 
-            logger.info(f"Retrieved {len(docs)} chunks after ensemble fusion (top_n={top_n})")
+            logger.info(f"Retrieved {len(docs)} chunks (top_n={top_n})")
             return docs
+
         except Exception as e:
-            logger.error(f"Error during ensemble retrieval: {e}")
-            return []
+            logger.error(f"Retrieval pipeline error: {e}")
+            raise RetrievalError(f"Failed to retrieve context: {e}")
 
     @staticmethod
     def _format_chunks(docs: list) -> str:
@@ -135,7 +159,9 @@ class LLMService:
         formatted_chunks = []
         for doc in docs:
             src_path = doc.metadata.get("source", "")
-            filename = doc.metadata.get("filename") or Path(src_path).name or "Document"
+            filename = (
+                doc.metadata.get("filename") or Path(src_path).name or "Document"
+            )
             page_raw = doc.metadata.get("page", 0)
             page = (page_raw + 1) if isinstance(page_raw, int) else page_raw
             content = doc.page_content.strip()
@@ -143,83 +169,100 @@ class LLMService:
 
         return "\n\n---\n\n".join(formatted_chunks)
 
-    # ── History Management ────────────────────────────────────────────
+    @staticmethod
+    def _extract_sources(docs: list) -> list[dict]:
+        """
+        Extracts unique source references from retrieved documents.
+        Returns a deduplicated list of {filename, page} dicts.
+        """
+        sources = []
+        seen: set[tuple[str, int]] = set()
 
-    def _trim_history(self) -> None:
-        """
-        Keeps history within MAX_HISTORY_TURNS limit.
-        Each turn = 1 HumanMessage + 1 AIMessage = 2 messages.
-        Trims from the front (oldest messages removed first).
-        """
-        max_messages = settings.MAX_HISTORY_TURNS * 2
-        if len(self.history) > max_messages:
-            trimmed_count = len(self.history) - max_messages
-            self.history = self.history[-max_messages:]
-            logger.info(
-                f"History trimmed: removed {trimmed_count} oldest messages, "
-                f"keeping last {settings.MAX_HISTORY_TURNS} turns"
+        for doc in docs:
+            src_path = doc.metadata.get("source", "")
+            filename = (
+                doc.metadata.get("filename") or Path(src_path).name or "Document"
             )
+            page_raw = doc.metadata.get("page", 0)
+            page = (page_raw + 1) if isinstance(page_raw, int) else page_raw
 
-    def clear_history(self) -> None:
-        """Resets conversation history to empty state."""
-        self.history.clear()
-        logger.info("Conversation history cleared")
+            key = (filename, page)
+            if key not in seen:
+                sources.append({"filename": filename, "page": page})
+                seen.add(key)
+
+        return sources
 
     # ── Main Response Generation ──────────────────────────────────────
 
-    def generate_response(self, query: str) -> str:
+    def generate_response(
+        self, query: str, session_id: str
+    ) -> tuple[str, list[dict]]:
         """
         Full RAG pipeline:
-            1. Retrieves chunks via EnsembleRetriever (Similarity + MMR + BM25 → RRF fusion)
+            1. Retrieves chunks via EnsembleRetriever (Similarity + MMR + BM25 → RRF)
             2. Formats chunks with source attribution
-            3. Builds prompt with system instruction + context + history + query
-            4. Invokes local LLM (ChatOllama)
-            5. Appends to history and trims if needed
+            3. Loads session history from SQLite
+            4. Builds prompt with system instruction + context + history + query
+            5. Invokes local LLM (ChatOllama)
+            6. Saves the turn to session history
+            7. Returns (answer, sources)
+
+        Args:
+            query: The user's question.
+            session_id: Anonymous session identifier.
+
+        Returns:
+            Tuple of (answer_text, sources_list).
+
+        Raises:
+            RetrievalError: If context retrieval fails.
+            LLMConnectionError: If the LLM call fails.
         """
+        # Stage 1: Retrieve context via ensemble pipeline
+        docs = self._retrieve_context(query)
+
+        if not docs:
+            return (
+                "No relevant content found in the uploaded documents for your question.",
+                [],
+            )
+
+        # Stage 2: Format chunks + extract source references
+        formatted_context = self._format_chunks(docs)
+        sources = self._extract_sources(docs)
+
+        # Stage 3: Load session history from SQLite
+        history = session_service.get_history(session_id)
+
+        # Stage 4: Build message chain
+        messages = [
+            SystemMessage(
+                content=f"{self.system_instruction}\n\nContext:\n{formatted_context}"
+            )
+        ]
+        messages.extend(history)
+        messages.append(HumanMessage(content=query))
+
+        # Stage 5: Invoke LLM
         try:
-            # Stage 1: Retrieve context via ensemble pipeline
-            docs = self._retrieve_context(query)
-
-            if not docs:
-                return "No relevant content found in the uploaded documents for your question."
-
-            # Stage 2: Format chunks with source headers
-            formatted_context = self._format_chunks(docs)
-
-            # Stage 3: Build message chain
-            messages = [
-                SystemMessage(
-                    content=f"{self.system_instruction}\n\nContext:\n{formatted_context}"
-                )
-            ]
-
-            # Add conversation history (already trimmed)
-            messages.extend(self.history)
-
-            # Add current user query
-            human_msg = HumanMessage(content=query)
-            messages.append(human_msg)
-
-            # Stage 4: Invoke LLM
             response = self.llm.invoke(messages)
-
-            # Stage 5: Update history and trim
-            self.history.append(human_msg)
-            self.history.append(response)
-            self._trim_history()
-
-            return (
-                response.content.strip()
-                if response.content
-                else "Could not generate an answer."
-            )
-
         except Exception as e:
-            logger.error(f"Error generating response: {e}")
-            return (
-                "There was an error generating the response. "
-                "Please ensure Ollama is running and at least one document is ingested."
+            logger.error(f"LLM invocation failed: {e}")
+            raise LLMConnectionError(
+                "Failed to get response from Ollama. Is it running?"
             )
+
+        answer = (
+            response.content.strip()
+            if response.content
+            else "Could not generate an answer."
+        )
+
+        # Stage 6: Save to session history (SQLite)
+        session_service.append_to_history(session_id, query, answer)
+
+        return answer, sources
 
 
 # Singleton instance

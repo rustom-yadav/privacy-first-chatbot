@@ -16,6 +16,7 @@ requirements.txt.log
 chroma_db/
 ollama_models/
 uploaded_docs/
+local_db/
 
 # --- Environment & OS Files ---
 .env

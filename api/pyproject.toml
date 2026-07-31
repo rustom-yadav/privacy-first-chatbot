@@ -1,13 +1,37 @@
 [project]
-name = "api"
-version = "0.1.0"
-description = "Add your description here"
+name = "privacy-first-chatbot-api"
+version = "1.0.0"
+description = "Secure, local RAG pipeline using FastAPI, LangChain, and Ollama"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    # Web Framework
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic-settings",
+    "python-dotenv",
+    "python-multipart",
+    "httpx",
+
+    # Security & Middleware
+    "slowapi",
+
+    # LangChain Ecosystem
+    "langchain-core",
+    "langchain-ollama",
+    "langchain-classic",
+    "langchain-huggingface",
+    "langchain-chroma",
+    "langchain-text-splitters",
+
+    # RAG Pipeline
+    "rank-bm25",
+    "pypdf",
+]
+
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py312"
 
 [tool.ruff.format]
 quote-style = "double"
