@@ -65,11 +65,11 @@ app.add_middleware(
 # ── Rate Limiter ─────────────────────────────────────────────────────
 
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
 
 # ── Exception Handlers ───────────────────────────────────────────────
 
-app.add_exception_handler(AppError, app_exception_handler)
+app.add_exception_handler(AppError, app_exception_handler)  # type: ignore
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
 # ── Routes ───────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ async def health_check():
             if resp.status_code == 200:
                 ollama_status = "up"
     except Exception:
-        pass
+        logger.exception("Ollama is not reachable")
 
     # Check ChromaDB
     chroma_status = "down"
@@ -109,9 +109,11 @@ async def health_check():
         chroma_status = "up"
         doc_count = len(data.get("documents", [])) if data else 0
     except Exception:
-        pass
+        logger.exception("ChromaDB is not reachable")
 
-    overall = "healthy" if (ollama_status == "up" and chroma_status == "up") else "degraded"
+    overall = (
+        "healthy" if (ollama_status == "up" and chroma_status == "up") else "degraded"
+    )
 
     return {
         "status": overall,
@@ -133,6 +135,4 @@ async def health_check():
 # ── Script Mode Entry Point ─────────────────────────────────────────
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "main:app", host="0.0.0.0", port=settings.PORT, reload=settings.DEBUG
-    )
+    uvicorn.run("main:app", host="0.0.0.0", port=settings.PORT, reload=settings.DEBUG)
