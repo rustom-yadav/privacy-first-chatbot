@@ -6,17 +6,10 @@ The generic APIResponse[T] envelope wraps every response with
 success/error status for uniform client-side handling.
 """
 
-from typing import Generic, TypeVar
-
 from pydantic import BaseModel, Field
 
-DataT = TypeVar("DataT")
 
-
-# ── Generic Response Envelope ────────────────────────────────────────
-
-
-class APIResponse(BaseModel, Generic[DataT]):
+class APIResponse[DataT](BaseModel):
     """
     Standard response wrapper for all API endpoints.
 

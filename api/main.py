@@ -9,7 +9,7 @@ Registers:
     - Route modules (chat, document)
     - Health check endpoint (pings Ollama + ChromaDB)
 """
-
+import asyncio
 import logging
 
 import httpx
@@ -105,7 +105,7 @@ async def health_check():
     try:
         from app.services.rag_service import rag_service
 
-        data = rag_service.vector_store.get()
+        data = await asyncio.to_thread(rag_service.vector_store.get, limit=1)
         chroma_status = "up"
         doc_count = len(data.get("documents", [])) if data else 0
     except Exception:
