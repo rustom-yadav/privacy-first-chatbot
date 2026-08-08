@@ -13,6 +13,7 @@ Ingestion runs in asyncio.to_thread() to avoid blocking the event loop.
 
 import asyncio
 import logging
+import shutil
 from pathlib import Path
 
 from fastapi import APIRouter, File, Request, UploadFile
@@ -54,22 +55,24 @@ async def upload_pdf(request: Request, file: UploadFile = File(...)):
     if not secure_name or ".." in secure_name:
         raise InvalidFileFormatError("Invalid filename.")
 
-    # 3. Read file content and check size
-    content = await file.read()
     max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
 
-    if len(content) > max_bytes:
+    if file.size and file.size > max_bytes:
         raise FileTooLargeError(
-            f"File size ({len(content) / (1024 * 1024):.1f} MB) exceeds "
+            f"File size ({file.size / (1024 * 1024):.1f} MB) exceeds "
             f"the maximum allowed size of {settings.MAX_UPLOAD_SIZE_MB} MB."
         )
 
     # 4. Save to disk securely
     file_path = settings.UPLOAD_DIR / secure_name
 
+    def save_upload():
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
     try:
-        file_path.write_bytes(content)
-    except Exception as e:
+        await asyncio.to_thread(save_upload)
+    except OSError as e:
         logger.error(f"Failed to save file: {e}")
         raise DocumentIngestionError(f"Failed to save file to disk: {e}")
     finally:

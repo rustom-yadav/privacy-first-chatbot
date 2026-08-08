@@ -85,3 +85,10 @@ class QueryTooLongError(AppError):
 
     status_code = 400
     detail = "Query exceeds the maximum allowed length."
+
+
+class QueryEmptyError(AppError):
+    """Raised when the user query is empty."""
+
+    status_code = 400
+    detail = "Query cannot be empty."

@@ -16,10 +16,10 @@ import logging
 import time
 import uuid
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 
 from app.config import settings
-from app.exceptions import QueryTooLongError
+from app.exceptions import QueryEmptyError, QueryTooLongError
 from app.middleware.rate_limiter import limiter
 from app.models.schemas import (
     APIResponse,
@@ -30,24 +30,32 @@ from app.models.schemas import (
 
 logger = logging.getLogger(__name__)
 
+
+def get_llm_service():
+    from app.services.llm_service import llm_service
+
+    return llm_service
+
+
 router = APIRouter()
 
 
 @router.post("/", response_model=APIResponse[ChatResponseData])
 @limiter.limit(settings.RATE_LIMIT_CHAT)
-async def chat_with_bot(request: Request, body: ChatRequest):
+async def chat_with_bot(
+    request: Request, body: ChatRequest, llm_service=Depends(get_llm_service)
+):
     """
     Send a chat query and get an AI-generated response.
 
     If no session_id is provided, a new one is generated automatically.
     History is maintained per-session in SQLite (survives restarts).
     """
-    from app.services.llm_service import llm_service
 
     # 1. Validate query length
     query = body.query.strip()
     if not query:
-        raise QueryTooLongError("Query cannot be empty.")
+        raise QueryEmptyError("Query cannot be empty.")
 
     if len(query) > settings.MAX_QUERY_LENGTH:
         raise QueryTooLongError(
