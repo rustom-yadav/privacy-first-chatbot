@@ -13,8 +13,7 @@ SQLite is chosen because:
 
 import logging
 import sqlite3
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
 
 from langchain_core.messages import AIMessage, HumanMessage
 
@@ -32,11 +31,11 @@ class SessionService:
     within the LLM context window.
     """
 
-    def __init__(self, db_path: Path | None = None):
-        self.db_path = str(db_path or settings.DB_DIR / "chat_sessions.db")
+    def __init__(self):
+        self.db_path = settings.DB_DIR / "chat_sessions.db"
 
         # Ensure the parent directory exists
-        Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
         self._init_db()
 
@@ -107,7 +106,7 @@ class SessionService:
         Saves a human-AI message pair to the session history.
         Both messages are stored with the same timestamp for pairing.
         """
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         with self._get_connection() as conn:
             conn.executemany(

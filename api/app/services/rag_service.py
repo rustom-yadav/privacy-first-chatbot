@@ -68,7 +68,7 @@ class RAGService:
             else:
                 self.bm25_retriever = None
                 logger.info("BM25 index: no documents found.")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Error initializing BM25: {e}")
             self.bm25_retriever = None
 
@@ -82,7 +82,7 @@ class RAGService:
         try:
             self.vector_store._collection.delete(where={"filename": filename})
             logger.info(f"Cleared old vectors for: {filename}")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             # Non-fatal: log and continue. First-time ingestion won't have old chunks.
             logger.warning(f"Could not clear old vectors for {filename}: {e}")
 
@@ -147,10 +147,10 @@ class RAGService:
 
         except DocumentIngestionError:
             raise
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Error during document ingestion: {e}")
             raise DocumentIngestionError(
-                f"Failed to ingest {file_path.name}: {str(e)}"
+                f"Failed to ingest {file_path.name}: {e!s}"
             )
 
     # ── Document Management ──────────────────────────────────────────
@@ -175,7 +175,7 @@ class RAGService:
                 {"filename": name, "chunk_count": count}
                 for name, count in sorted(file_counts.items())
             ]
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Error listing documents: {e}")
             return []
 

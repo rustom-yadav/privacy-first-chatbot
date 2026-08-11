@@ -44,7 +44,7 @@ class LLMService:
 
     # Ensemble weights: [Similarity, MMR, BM25]
     # Slightly lower BM25 weight since it doesn't understand semantic meaning
-    ENSEMBLE_WEIGHTS = [0.35, 0.35, 0.30]
+    ENSEMBLE_WEIGHTS = (0.35, 0.35, 0.30)
 
     def __init__(self):
         try:
@@ -53,7 +53,7 @@ class LLMService:
                 model=settings.LLM_MODEL,
                 temperature=0.1,
             )
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Failed to initialize Ollama LLM: {e}")
             raise LLMConnectionError(f"Could not connect to Ollama: {e}")
 
@@ -146,7 +146,7 @@ class LLMService:
             logger.info(f"Retrieved {len(docs)} chunks (top_n={top_n})")
             return docs
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Retrieval pipeline error: {e}")
             raise RetrievalError(f"Failed to retrieve context: {e}")
 
@@ -247,7 +247,7 @@ class LLMService:
         # Stage 5: Invoke LLM
         try:
             response = self.llm.invoke(messages)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"LLM invocation failed: {e}")
             raise LLMConnectionError(
                 "Failed to get response from Ollama. Is it running?"
