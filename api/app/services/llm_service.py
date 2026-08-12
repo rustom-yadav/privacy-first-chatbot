@@ -253,11 +253,15 @@ class LLMService:
                 "Failed to get response from Ollama. Is it running?"
             )
 
-        answer = (
-            response.content.strip()
-            if response.content
-            else "Could not generate an answer."
-        )
+        content = response.content
+        if isinstance(content, str):
+            answer = (
+                content.strip()
+                if content
+                else "Could not generate an answer."
+            )
+        else:
+            answer = str(content)
 
         # Stage 6: Save to session history (SQLite)
         session_service.append_to_history(session_id, query, answer)
