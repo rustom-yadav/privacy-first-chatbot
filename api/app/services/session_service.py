@@ -80,7 +80,7 @@ class SessionService:
             rows = conn.execute(
                 """
                 SELECT role, content FROM (
-                    SELECT role, content, created_at
+                    SELECT id, role, content, created_at
                     FROM chat_messages
                     WHERE session_id = ?
                     ORDER BY created_at DESC, id DESC
