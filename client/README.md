@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛡️ Privacy-First Chatbot — Frontend (Client)
 
-## Getting Started
+Welcome to the frontend of the **Privacy-First Chatbot**. This is a modern, dark-themed chat interface built with Next.js 16, TypeScript, and Tailwind CSS v4. It connects to the FastAPI backend to provide a premium, privacy-first AI chat experience.
 
-First, run the development server:
+## ✨ Features
 
+- **🔒 Privacy-First Design** — No data leaves your machine. All processing is local.
+- **💬 Real-time Chat** — Send questions and get AI responses with source attribution.
+- **📄 PDF Document Management** — Upload, list, and delete documents via drag-and-drop.
+- **🎨 Premium Dark UI** — Glassmorphism, animations, and emerald accent colors.
+- **📱 Fully Responsive** — Works on desktop and mobile with collapsible sidebar.
+- **⚡ Session Persistence** — Chat sessions persist across page reloads via localStorage.
+- **🏥 Health Monitoring** — Live API health status indicator in the sidebar.
+
+## 🚀 Getting Started Step-by-Step
+
+### Step 1: Prerequisites
+Make sure the **API server** is running first. See [`../api/README.md`](../api/README.md) for setup instructions.
+
+### Step 2: Set Up Environment Variables
+Copy the sample environment file:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp sample.env .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The default `NEXT_PUBLIC_API_URL` is `http://localhost:8000` which matches the API server's default port.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Step 3: Run the Application (Choose Option A or B)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+#### Option A: Run using Docker (Recommended)
+Docker is the easiest way to run the frontend.
 
-## Learn More
+1. **Build the image:**
+   ```bash
+   docker build -t privacy-chatbot-client .
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Run the container:**
+   ```bash
+   docker run -p 3000:3000 \
+     -e NEXT_PUBLIC_API_URL=http://localhost:8000 \
+     privacy-chatbot-client
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### Option B: Run Without Docker (Local Setup)
+If you prefer running directly:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Install Dependencies:**
+   Make sure you have [pnpm](https://pnpm.io/) installed, then run:
+   ```bash
+   pnpm install
+   ```
 
-## Deploy on Vercel
+2. **Start the Dev Server:**
+   ```bash
+   pnpm run dev
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🌐 How to Use
+
+Once the frontend is running (and the API is up):
+
+1. Open **[http://localhost:3000](http://localhost:3000)** in your browser.
+2. **Upload a PDF** — Use the drag-and-drop zone in the sidebar.
+3. **Ask questions** — Type your question in the chat input and press Enter.
+4. **View sources** — Click "Show Sources" on AI responses to see which pages were referenced.
+5. **New chat** — Click "New Chat" in the sidebar to start a fresh conversation.
+
+## 🏗️ Tech Stack
+
+| Technology | Purpose |
+|---|---|
+| [Next.js 16](https://nextjs.org/) | React framework with App Router |
+| [TypeScript](https://www.typescriptlang.org/) | Type-safe JavaScript |
+| [Tailwind CSS v4](https://tailwindcss.com/) | Utility-first CSS |
+| [React 19](https://react.dev/) | UI library |
+
+## 📁 Project Structure
+
+```
+client/
+├── src/
+│   ├── app/                  # Next.js App Router pages
+│   │   ├── layout.tsx        # Root layout with SEO metadata
+│   │   ├── page.tsx          # Main 2-column chat page
+│   │   └── globals.css       # Design system + animations
+│   ├── components/
+│   │   ├── chat/             # Chat UI components
+│   │   │   ├── ChatWindow.tsx
+│   │   │   ├── ChatInput.tsx
+│   │   │   └── MessageBubble.tsx
+│   │   └── sidebar/          # Sidebar components
+│   │       ├── Sidebar.tsx
+│   │       ├── DocumentCard.tsx
+│   │       ├── UploadZone.tsx
+│   │       └── StatusBadge.tsx
+│   ├── hooks/                # Custom React hooks
+│   │   ├── useChat.ts
+│   │   └── useDocuments.ts
+│   └── lib/                  # Utilities
+│       ├── api.ts            # Type-safe API client
+│       └── types.ts          # TypeScript interfaces
+├── Dockerfile                # Multi-stage Docker build
+├── next.config.ts            # Next.js config with API rewrites
+├── sample.env                # Environment variable reference
+└── package.json
+```
