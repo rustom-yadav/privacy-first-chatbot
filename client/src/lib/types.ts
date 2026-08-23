@@ -31,6 +31,12 @@ export interface ChatResponseData {
   response_time_ms: number;
 }
 
+export interface ClearHistoryResponseData {
+  session_id: string;
+  messages_deleted: number;
+  message: string;
+}
+
 // ── Document Schemas ───────────────────────────────────────────────
 
 export interface DocumentInfo {
