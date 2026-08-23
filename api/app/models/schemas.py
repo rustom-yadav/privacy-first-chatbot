@@ -59,6 +59,14 @@ class ChatResponseData(BaseModel):
     )
 
 
+class ClearHistoryResponseData(BaseModel):
+    """Data returned after clearing conversation history."""
+
+    session_id: str
+    messages_deleted: int
+    message: str
+
+
 # ── Document Schemas ─────────────────────────────────────────────────
 
 

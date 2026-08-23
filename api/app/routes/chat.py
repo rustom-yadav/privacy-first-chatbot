@@ -25,6 +25,7 @@ from app.models.schemas import (
     APIResponse,
     ChatRequest,
     ChatResponseData,
+    ClearHistoryResponseData,
     SourceInfo,
 )
 
@@ -88,7 +89,7 @@ async def chat_with_bot(
     )
 
 
-@router.delete("/history", response_model=APIResponse)
+@router.delete("/history", response_model=APIResponse[ClearHistoryResponseData])
 async def clear_chat_history(request: Request, session_id: str):
     """
     Clears conversation history for a specific session.
@@ -100,9 +101,9 @@ async def clear_chat_history(request: Request, session_id: str):
 
     return APIResponse(
         success=True,
-        data={
-            "session_id": session_id,
-            "messages_deleted": deleted,
-            "message": "Conversation history cleared.",
-        },
+        data=ClearHistoryResponseData(
+            session_id=session_id,
+            messages_deleted=deleted,
+            message="Conversation history cleared.",
+        ),
     )
