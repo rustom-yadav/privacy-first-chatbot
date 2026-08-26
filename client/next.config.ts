@@ -1,8 +1,10 @@
-import type { NextConfig } from "next";
+import type NextConfig from "next";
 
 const nextConfig: NextConfig = {
   // Enables standalone output for Docker (smaller image size)
   output: "standalone",
+
+  reactCompiler: true,
 
   // Proxy API calls to the backend to avoid CORS issues in development
   async rewrites() {
