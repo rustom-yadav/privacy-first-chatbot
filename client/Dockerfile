@@ -4,7 +4,7 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 
 # Copy dependency files first (cache layer)
-COPY package.json pnpm-lock.yaml* package-lock.json* yarn.lock* ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install pnpm and dependencies
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -19,7 +19,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Set build-time env variables
-ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Build the Next.js application (standalone output)
