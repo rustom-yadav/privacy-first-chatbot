@@ -1,0 +1,32 @@
+# Virtual environment (created inside the container)
+.venv/
+
+# Cache files
+__pycache__/
+*.pyc
+.ruff_cache/
+
+# Data directories (mounted via volumes)
+chroma_db/
+chroma_db;C/
+uploaded_docs/
+uploaded_docs;C/
+local_db/
+
+# Environment files (sensitive — set via env vars in the container)
+.env
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Docs
+README.md
