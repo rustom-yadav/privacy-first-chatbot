@@ -14,7 +14,11 @@ import type {
   UploadResponseData,
 } from "./types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// Use relative URLs in the browser so Next.js rewrites intercept the call.
+// On the server (SSR), use the full URL from the environment variable.
+const API_BASE = typeof window !== "undefined" 
+  ? "" 
+  : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000");
 
 // ── Helper ─────────────────────────────────────────────────────────
 
