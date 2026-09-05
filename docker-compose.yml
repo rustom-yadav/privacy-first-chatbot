@@ -1,40 +1,41 @@
-version: '3.8'
-
 services:
   api:
-    build: 
+    build:
       context: ./api
     ports:
       - "8000:8000"
-    environment:
-      - OLLAMA_HOST=http://ollama:11434
-      - DATABASE_URL=${DATABASE_URL}  # Agar MongoDB connect karna ho
+    env_file:
+      - .env
     depends_on:
       - ollama
     volumes:
-      - ./api:/app  # Live code reloading ke liye
-      - chromadb_data:/app/chroma_db # Vector DB ka data persist karne ke liye
+      # Data persistence only — no code mounts
+      - chromadb_data:/app/chroma_db
+      - uploaded_docs:/app/uploaded_docs
+      - local_db:/app/local_db
+    restart: unless-stopped
 
   client:
-    build: 
+    build:
       context: ./client
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     ports:
       - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
     depends_on:
       - api
-    volumes:
-      - ./client:/app # Live UI reloading ke liye
-      - /app/node_modules # Container ke node_modules ko override hone se bachane ke liye
+    restart: unless-stopped
 
   ollama:
     image: ollama/ollama:latest
     ports:
       - "11434:11434"
     volumes:
-      - ollama_models:/root/.ollama  # Downloaded models ko save rakhne ke liye
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
 
 volumes:
   ollama_models:
   chromadb_data:
+  uploaded_docs:
+  local_db:
