@@ -7,7 +7,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - ollama
+      ollama:
+        condition: service_started
+      ollama-pull-model:
+        condition: service_completed_successfully
     volumes:
       # Data persistence only — no code mounts
       - chromadb_data:/app/chroma_db
@@ -33,6 +36,23 @@ services:
     volumes:
       - ollama_models:/root/.ollama
     restart: unless-stopped
+
+  ollama-pull-model:
+    image: ollama/ollama:latest
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=${OLLAMA_HOST}
+    command: >
+      sh -c "
+        echo \"Waiting for Ollama server to be ready...\";
+        while ! ollama list > /dev/null 2>&1; do
+          sleep 2;
+        done;
+        echo \"Pulling model ${LLM_MODEL}...\";
+        ollama pull ${LLM_MODEL};
+        echo \"Model ${LLM_MODEL} is ready!\";
+      "
 
 volumes:
   ollama_models:
