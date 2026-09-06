@@ -1,34 +1,82 @@
-# 🛡️ Privacy-First Chatbot — Frontend (Client)
+# 🛡️ Privacy-First Chatbot — Client (Frontend)
 
-Welcome to the frontend of the **Privacy-First Chatbot**. This is a modern, dark-themed chat interface built with Next.js 16, TypeScript, and Tailwind CSS v4. It connects to the FastAPI backend to provide a premium, privacy-first AI chat experience.
+![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+
+Welcome to the frontend of the **Privacy-First Chatbot**. This is a modern, dark-themed chat interface built with Next.js, React 19, TypeScript, and Tailwind CSS v4. It connects to the FastAPI backend to provide a premium, completely local, and privacy-first AI chat experience.
+
+---
 
 ## ✨ Features
 
 - **🔒 Privacy-First Design** — No data leaves your machine. All processing is local.
 - **💬 Real-time Chat** — Send questions and get AI responses with source attribution.
-- **📄 PDF Document Management** — Upload, list, and delete documents via drag-and-drop.
-- **🎨 Premium Dark UI** — Glassmorphism, animations, and emerald accent colors.
-- **📱 Fully Responsive** — Works on desktop and mobile with collapsible sidebar.
-- **⚡ Session Persistence** — Chat sessions persist across page reloads via localStorage.
-- **🏥 Health Monitoring** — Live API health status indicator in the sidebar.
+- **📄 PDF Document Management** — Upload (via click or drag-and-drop), list, and delete documents.
+- **🎨 Premium Dark UI** — Glassmorphism, smooth animations, and curated emerald accent colors.
+- **📱 Fully Responsive** — Seamless experience on desktop and mobile with a collapsible sidebar.
+- **⚡ Session Persistence** — Chat sessions automatically persist across page reloads via `localStorage`.
+- **🏥 Health Monitoring** — Live API health status indicator integrated right into the sidebar.
 
-## 🚀 Getting Started Step-by-Step
+---
 
-### Step 1: Prerequisites
-Make sure the **API server** is running first. See [`../api/README.md`](../api/README.md) for setup instructions.
+## 🚀 Getting Started
 
-### Step 2: Set Up Environment Variables
-Copy the sample environment file:
+> **💡 Recommendation:** The easiest way to run the *entire* application (Frontend + Backend + Database) is using the `docker-compose.yml` file located in the **root** of the project. 
+> 
+> If you want to run the frontend in isolation for development, follow the steps below.
+
+### 📋 Prerequisites
+
+Before you begin, ensure you have the following installed:
+- **Node.js** (v24 LTS recommended)
+- **pnpm** (v12.x required)
+- The **API Backend** must be running (see [../api/README.md](../api/README.md))
+
+### 📂 1. Navigate to the Client Directory
+
+All commands below must be run from inside the `client` folder:
+
+```bash
+cd client
+```
+
+### ⚙️ 2. Environment Setup
+
+Copy the sample environment file to create your local configuration:
+
 ```bash
 cp sample.env .env.local
 ```
 
-The default `BACKEND_API_URL` is `http://localhost:8000` which matches the API server's default port.
+Inside `.env.local`, you will find:
+```env
+BACKEND_API_URL=http://localhost:8000
+```
+*Note: This URL points to your locally running FastAPI backend. Next.js uses this to proxy API requests internally, avoiding CORS issues.*
 
-### Step 3: Run the Application (Choose Option A or B)
+### 🛠️ 3. Running Locally (Development Mode)
 
-#### Option A: Run using Docker (Recommended)
-Docker is the easiest way to run the frontend.
+If you are developing the frontend, running it locally without Docker provides the best experience (Hot Module Replacement, faster reloads).
+
+1. **Install Dependencies:**
+   Make sure you have [pnpm v12](https://pnpm.io/) activated.
+   ```bash
+   pnpm install
+   ```
+
+2. **Start the Development Server:**
+   ```bash
+   pnpm run dev
+   ```
+
+3. **Access the App:**
+   Open **[http://localhost:3000](http://localhost:3000)** in your browser.
+
+### 🐳 4. Running with Docker (Standalone)
+
+If you want to build and run *only* the frontend via Docker:
 
 1. **Build the image:**
    ```bash
@@ -41,45 +89,35 @@ Docker is the easiest way to run the frontend.
      -e BACKEND_API_URL=http://localhost:8000 \
      privacy-chatbot-client
    ```
-
-#### Option B: Run Without Docker (Local Setup)
-If you prefer running directly:
-
-1. **Install Dependencies:**
-   Make sure you have [pnpm](https://pnpm.io/) installed, then run:
-   ```bash
-   pnpm install
-   ```
-
-2. **Start the Dev Server:**
-   ```bash
-   pnpm run dev
-   ```
+   *(Note: Replace the URL with wherever your backend is running. If the backend is running locally, it will be `http://localhost:8000`. If running the backend via Docker, ensure you map its port to `8000` on your host so it is available at localhost. For more details, see the API README).*
 
 ---
 
-## 🌐 How to Use
+## 🌐 How to Use the App
 
-Once the frontend is running (and the API is up):
+1. **Check Connection:** Ensure the health status indicator in the sidebar shows a green "Connected" status.
+2. **Upload a PDF:** Click the designated zone in the sidebar to select a PDF, or simply drag and drop the file.
+3. **Ask Questions:** Type your query in the chat input at the bottom and press Enter.
+4. **View Sources:** Click "Show Sources" on the AI's response to see exactly which pages of your PDF were referenced.
+5. **New Chat:** Click the "New Chat" button in the sidebar to start the new conversation.
 
-1. Open **[http://localhost:3000](http://localhost:3000)** in your browser.
-2. **Upload a PDF** — Use the drag-and-drop zone in the sidebar.
-3. **Ask questions** — Type your question in the chat input and press Enter.
-4. **View sources** — Click "Show Sources" on AI responses to see which pages were referenced.
-5. **New chat** — Click "New Chat" in the sidebar to start a fresh conversation.
+---
 
 ## 🏗️ Tech Stack
 
 | Technology | Purpose |
 |---|---|
-| [Next.js 16](https://nextjs.org/) | React framework with App Router |
-| [TypeScript](https://www.typescriptlang.org/) | Type-safe JavaScript |
-| [Tailwind CSS v4](https://tailwindcss.com/) | Utility-first CSS |
-| [React 19](https://react.dev/) | UI library |
+| **Next.js** | React framework utilizing the App Router |
+| **React 19** | Core UI library for building interactive components |
+| **TypeScript** | Ensures type-safe JavaScript across the application |
+| **Tailwind CSS v4** | Utility-first CSS framework for rapid, premium styling |
+| **pnpm v12** | Fast, disk space efficient package manager |
+
+---
 
 ## 📁 Project Structure
 
-```
+```text
 client/
 ├── src/
 │   ├── app/                  # Next.js App Router pages
@@ -87,23 +125,14 @@ client/
 │   │   ├── page.tsx          # Main 2-column chat page
 │   │   └── globals.css       # Design system + animations
 │   ├── components/
-│   │   ├── chat/             # Chat UI components
-│   │   │   ├── ChatWindow.tsx
-│   │   │   ├── ChatInput.tsx
-│   │   │   └── MessageBubble.tsx
-│   │   └── sidebar/          # Sidebar components
-│   │       ├── Sidebar.tsx
-│   │       ├── DocumentCard.tsx
-│   │       ├── UploadZone.tsx
-│   │       └── StatusBadge.tsx
-│   ├── hooks/                # Custom React hooks
-│   │   ├── useChat.ts
-│   │   └── useDocuments.ts
+│   │   ├── chat/             # Chat UI components (Input, Messages, etc.)
+│   │   └── sidebar/          # Sidebar components (Upload, Status, etc.)
+│   ├── hooks/                # Custom React hooks (useChat, useDocuments)
 │   └── lib/                  # Utilities
-│       ├── api.ts            # Type-safe API client
+│       ├── api.ts            # Type-safe API client (handles proxy routing)
 │       └── types.ts          # TypeScript interfaces
-├── Dockerfile                # Multi-stage Docker build
+├── Dockerfile                # Multi-stage Docker build (deps, builder, runner)
 ├── next.config.ts            # Next.js config with API rewrites
 ├── sample.env                # Environment variable reference
-└── package.json
+└── package.json              # Project dependencies and scripts
 ```
