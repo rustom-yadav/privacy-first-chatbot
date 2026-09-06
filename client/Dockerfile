@@ -1,5 +1,5 @@
 # ── Stage 1: Install dependencies ────────────────────────────────────
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 
 # Add libc6-compat for Next.js SWC compiler compatibility on Alpine
 RUN apk add --no-cache libc6-compat
@@ -10,11 +10,11 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install pnpm and dependencies
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@12.3.4 --activate
 RUN pnpm install --frozen-lockfile
 
 # ── Stage 2: Build the application ──────────────────────────────────
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
@@ -25,11 +25,11 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build the Next.js application (standalone output)
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@12.3.4 --activate
 RUN pnpm run build
 
 # ── Stage 3: Production runtime ─────────────────────────────────────
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 
 WORKDIR /app
 
