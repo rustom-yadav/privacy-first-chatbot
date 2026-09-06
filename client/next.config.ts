@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
 
   // Proxy API calls to the backend to avoid CORS issues in development
   async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const apiUrl = process.env.BACKEND_API_URL || "http://localhost:8000";
     return [
       {
         source: "/api/:path*",

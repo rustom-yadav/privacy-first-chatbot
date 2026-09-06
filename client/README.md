@@ -23,7 +23,7 @@ Copy the sample environment file:
 cp sample.env .env.local
 ```
 
-The default `NEXT_PUBLIC_API_URL` is `http://localhost:8000` which matches the API server's default port.
+The default `BACKEND_API_URL` is `http://localhost:8000` which matches the API server's default port.
 
 ### Step 3: Run the Application (Choose Option A or B)
 
@@ -38,7 +38,7 @@ Docker is the easiest way to run the frontend.
 2. **Run the container:**
    ```bash
    docker run -p 3000:3000 \
-     -e NEXT_PUBLIC_API_URL=http://localhost:8000 \
+     -e BACKEND_API_URL=http://localhost:8000 \
      privacy-chatbot-client
    ```
 
