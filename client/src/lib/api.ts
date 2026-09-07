@@ -1,8 +1,7 @@
 /**
  * Type-safe API client for the Privacy-First Chatbot backend.
  *
- * All calls go through Next.js rewrites (/api/* → backend),
- * so no CORS issues in development.
+ * Calls go directly to the backend API.
  */
 
 import type {
@@ -14,11 +13,8 @@ import type {
   UploadResponseData,
 } from "./types";
 
-// Use relative URLs in the browser so Next.js rewrites intercept the call.
-// On the server (SSR), use the full URL from the environment variable.
-const API_BASE = typeof window !== "undefined" 
-  ? "" 
-  : (process.env.BACKEND_API_URL || "http://localhost:8000");
+// Bypass Next.js proxy: direct call to backend from browser
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
 
 // ── Helper ─────────────────────────────────────────────────────────
 
@@ -54,7 +50,7 @@ export async function sendChat(
   query: string,
   sessionId?: string | null
 ): Promise<APIResponse<ChatResponseData>> {
-  return apiFetch<ChatResponseData>("/api/chat/", {
+  return apiFetch<ChatResponseData>("/api/chat", {
     method: "POST",
     body: JSON.stringify({
       query,

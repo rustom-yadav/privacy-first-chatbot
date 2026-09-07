@@ -24,6 +24,10 @@ COPY . .
 # Disable Next.js telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Receive API URL argument from docker-compose
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 # Build the Next.js application (standalone output)
 RUN corepack enable && corepack prepare pnpm@12.3.4 --activate
 RUN pnpm run build

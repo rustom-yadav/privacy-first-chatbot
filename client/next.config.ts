@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
 
   reactCompiler: true,
 
-  // We use src/proxy.ts for dynamic API proxying at runtime
 };
 
 export default nextConfig;
