@@ -6,20 +6,7 @@ const nextConfig: NextConfig = {
 
   reactCompiler: true,
 
-  // Proxy API calls to the backend to avoid CORS issues in development
-  async rewrites() {
-    const apiUrl = process.env.BACKEND_API_URL || "http://localhost:8000";
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${apiUrl}/api/:path*`,
-      },
-      {
-        source: "/health",
-        destination: `${apiUrl}/health`,
-      },
-    ];
-  },
+  // We use src/proxy.ts for dynamic API proxying at runtime
 };
 
 export default nextConfig;
