@@ -43,16 +43,15 @@ services:
       - ollama
     environment:
       - OLLAMA_HOST=${OLLAMA_HOST}
-    command: >
-      sh -c "
-        echo \"Waiting for Ollama server to be ready...\";
-        while ! ollama list > /dev/null 2>&1; do
-          sleep 2;
-        done;
-        echo \"Pulling model ${LLM_MODEL}...\";
-        ollama pull ${LLM_MODEL};
-        echo \"Model ${LLM_MODEL} is ready!\";
-      "
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      echo "Waiting for Ollama server to be ready..."
+      while ! ollama list > /dev/null 2>&1; do
+        sleep 2
+      done
+      echo "Pulling model $${LLM_MODEL}..."
+      ollama pull $${LLM_MODEL}
+      echo "Model $${LLM_MODEL} is ready!"
 
 volumes:
   ollama_models:
