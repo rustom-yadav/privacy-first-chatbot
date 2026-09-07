@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently \"cd api && python main.py\" \"cd client && pnpm dev\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -20,6 +21,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "concurrently": "^10.0.5",
     "prettier": "^3.9.5"
   }
 }
