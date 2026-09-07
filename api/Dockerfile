@@ -34,13 +34,12 @@ COPY --chown=appuser:appuser . .
 # (docker-compose environment variables will override these at runtime)
 COPY --chown=appuser:appuser sample.env .env
 
-# Switch to non-root user before creating directories
+# Ensure the directories exist and set correct ownership BEFORE switching user
+RUN mkdir -p uploaded_docs chroma_db local_db && \
+    chown -R appuser:appuser uploaded_docs chroma_db local_db
+
+# Switch to non-root user for security
 USER appuser
-
-# Ensure the directories exist (created with correct ownership automatically)
-RUN mkdir -p uploaded_docs chroma_db local_db
-
-# (User is already switched above)
 
 # Add venv to PATH
 ENV PATH="/app/.venv/bin:$PATH"
