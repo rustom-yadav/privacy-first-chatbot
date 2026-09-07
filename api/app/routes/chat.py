@@ -41,7 +41,7 @@ def get_llm_service():
 router = APIRouter()
 
 
-@router.post("/", response_model=APIResponse[ChatResponseData])
+@router.post("", response_model=APIResponse[ChatResponseData])
 @limiter.limit(settings.RATE_LIMIT_CHAT)
 async def chat_with_bot(
     request: Request, body: ChatRequest, llm_service=Depends(get_llm_service)
