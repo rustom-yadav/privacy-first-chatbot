@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from 'react';
 import {
   listDocuments,
   uploadDocument,
   deleteDocument as apiDeleteDocument,
-} from "@/lib/api";
-import type { DocumentInfo } from "@/lib/types";
+} from '@/lib/api';
+import type { DocumentInfo } from '@/lib/types';
 
 export function useDocuments() {
   const [documents, setDocuments] = useState<DocumentInfo[]>([]);
@@ -28,10 +28,10 @@ export function useDocuments() {
       if (response.success && response.data) {
         setDocuments(response.data);
       } else {
-        setError(response.error || "Failed to load documents.");
+        setError(response.error || 'Failed to load documents.');
       }
     } catch {
-      setError("Could not connect to API. Is the server running?");
+      setError('Could not connect to API. Is the server running?');
     } finally {
       setIsLoading(false);
     }
@@ -47,15 +47,15 @@ export function useDocuments() {
       setUploadSuccess(null);
 
       // Client-side validation
-      if (!file.name.toLowerCase().endsWith(".pdf")) {
-        setError("Only PDF files are allowed.");
+      if (!file.name.toLowerCase().endsWith('.pdf')) {
+        setError('Only PDF files are allowed.');
         setIsUploading(false);
         return false;
       }
 
       // 50 MB limit (matching API)
       if (file.size > 50 * 1024 * 1024) {
-        setError("File size exceeds 50 MB limit.");
+        setError('File size exceeds 50 MB limit.');
         setIsUploading(false);
         return false;
       }
@@ -71,11 +71,11 @@ export function useDocuments() {
           await fetchDocuments();
           return true;
         } else {
-          setError(response.error || "Upload failed.");
+          setError(response.error || 'Upload failed.');
           return false;
         }
       } catch {
-        setError("Network error during upload.");
+        setError('Network error during upload.');
         return false;
       } finally {
         setIsUploading(false);
@@ -99,11 +99,11 @@ export function useDocuments() {
           await fetchDocuments();
           return true;
         } else {
-          setError(response.error || "Failed to delete document.");
+          setError(response.error || 'Failed to delete document.');
           return false;
         }
       } catch {
-        setError("Network error during deletion.");
+        setError('Network error during deletion.');
         return false;
       }
     },

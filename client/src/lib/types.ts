@@ -53,14 +53,14 @@ export interface UploadResponseData {
 // ── Health Check ───────────────────────────────────────────────────
 
 export interface DependencyStatus {
-  status: "up" | "down";
+  status: 'up' | 'down';
   host?: string;
   model?: string;
   total_chunks?: number;
 }
 
 export interface HealthCheckResponse {
-  status: "healthy" | "degraded";
+  status: 'healthy' | 'degraded';
   app: string;
   dependencies: {
     ollama: DependencyStatus;
@@ -72,7 +72,7 @@ export interface HealthCheckResponse {
 
 export interface Message {
   id: string;
-  role: "human" | "ai";
+  role: 'human' | 'ai';
   content: string;
   sources?: SourceInfo[];
   responseTimeMs?: number;

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -13,14 +13,14 @@ export default function ChatInput({
   isLoading,
   maxLength = 2000,
 }: ChatInputProps) {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-resize textarea
   const adjustHeight = useCallback(() => {
     const el = textareaRef.current;
     if (!el) return;
-    el.style.height = "auto";
+    el.style.height = 'auto';
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
   }, []);
 
@@ -32,15 +32,15 @@ export default function ChatInput({
     const trimmed = value.trim();
     if (!trimmed || isLoading || trimmed.length > maxLength) return;
     onSend(trimmed);
-    setValue("");
+    setValue('');
     // Reset textarea height
     if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = 'auto';
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -72,7 +72,7 @@ export default function ChatInput({
           {charCount > 0 && (
             <span
               className={`text-xs tabular-nums transition-colors ${
-                isOverLimit ? "text-status-down" : "text-text-muted"
+                isOverLimit ? 'text-status-down' : 'text-text-muted'
               }`}
             >
               {charCount}/{maxLength}
@@ -88,13 +88,38 @@ export default function ChatInput({
             id="send-button"
           >
             {isLoading ? (
-              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              <svg
+                className="w-4 h-4 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
               </svg>
             ) : (
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
+                />
               </svg>
             )}
           </button>
@@ -103,8 +128,15 @@ export default function ChatInput({
 
       {/* Hint */}
       <p className="text-xs text-text-muted mt-2 ml-1">
-        Press <kbd className="px-1.5 py-0.5 rounded bg-surface-overlay text-text-secondary text-[10px] font-mono">Enter</kbd> to send
-        · <kbd className="px-1.5 py-0.5 rounded bg-surface-overlay text-text-secondary text-[10px] font-mono">Shift + Enter</kbd> for new line
+        Press{' '}
+        <kbd className="px-1.5 py-0.5 rounded bg-surface-overlay text-text-secondary text-[10px] font-mono">
+          Enter
+        </kbd>{' '}
+        to send ·{' '}
+        <kbd className="px-1.5 py-0.5 rounded bg-surface-overlay text-text-secondary text-[10px] font-mono">
+          Shift + Enter
+        </kbd>{' '}
+        for new line
       </p>
     </div>
   );

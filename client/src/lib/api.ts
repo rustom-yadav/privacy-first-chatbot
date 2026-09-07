@@ -1,9 +1,4 @@
-/**
- * Type-safe API client for the Privacy-First Chatbot backend.
- *
- * Calls go directly to the backend API.
- */
-
+//Type-safe API client for the Privacy-First Chatbot backend.
 import type {
   APIResponse,
   ChatResponseData,
@@ -11,10 +6,9 @@ import type {
   DocumentInfo,
   HealthCheckResponse,
   UploadResponseData,
-} from "./types";
+} from './types';
 
-// Bypass Next.js proxy: direct call to backend from browser
-const API_BASE = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // ── Helper ─────────────────────────────────────────────────────────
 
@@ -27,8 +21,8 @@ async function apiFetch<T>(
   const res = await fetch(url, {
     ...options,
     headers: {
-       "Content-Type": "application/json", 
-       ...options?.headers
+      'Content-Type': 'application/json',
+      ...options?.headers,
     },
   });
 
@@ -50,8 +44,8 @@ export async function sendChat(
   query: string,
   sessionId?: string | null
 ): Promise<APIResponse<ChatResponseData>> {
-  return apiFetch<ChatResponseData>("/api/chat", {
-    method: "POST",
+  return apiFetch<ChatResponseData>('/api/chat', {
+    method: 'POST',
     body: JSON.stringify({
       query,
       session_id: sessionId || null,
@@ -62,9 +56,12 @@ export async function sendChat(
 export async function clearHistory(
   sessionId: string
 ): Promise<APIResponse<ClearHistoryResponseData>> {
-  return apiFetch<ClearHistoryResponseData>(`/api/chat/history?session_id=${encodeURIComponent(sessionId)}`, {
-    method: "DELETE",
-  });
+  return apiFetch<ClearHistoryResponseData>(
+    `/api/chat/history?session_id=${encodeURIComponent(sessionId)}`,
+    {
+      method: 'DELETE',
+    }
+  );
 }
 
 // ── Document Endpoints ─────────────────────────────────────────────
@@ -73,12 +70,12 @@ export async function uploadDocument(
   file: File
 ): Promise<APIResponse<UploadResponseData>> {
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append('file', file);
 
   const url = `${API_BASE}/api/document/upload`;
 
   const res = await fetch(url, {
-    method: "POST",
+    method: 'POST',
     body: formData,
     // No Content-Type header — browser sets it with boundary for multipart
   });
@@ -88,7 +85,10 @@ export async function uploadDocument(
     return {
       success: false,
       data: null,
-      error: errorBody?.detail || errorBody?.error || `Upload failed: HTTP ${res.status}`,
+      error:
+        errorBody?.detail ||
+        errorBody?.error ||
+        `Upload failed: HTTP ${res.status}`,
     };
   }
 
@@ -96,14 +96,14 @@ export async function uploadDocument(
 }
 
 export async function listDocuments(): Promise<APIResponse<DocumentInfo[]>> {
-  return apiFetch<DocumentInfo[]>("/api/document/list", { method: "GET" });
+  return apiFetch<DocumentInfo[]>('/api/document/list', { method: 'GET' });
 }
 
 export async function deleteDocument(
   filename: string
 ): Promise<APIResponse<{ message: string }>> {
   return apiFetch(`/api/document/${encodeURIComponent(filename)}`, {
-    method: "DELETE",
+    method: 'DELETE',
   });
 }
 

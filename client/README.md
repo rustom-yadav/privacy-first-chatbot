@@ -23,13 +23,14 @@ Welcome to the frontend of the **Privacy-First Chatbot**. This is a modern, dark
 
 ## 🚀 Getting Started
 
-> **💡 Recommendation:** The easiest way to run the *entire* application (Frontend + Backend + Database) is using the `docker-compose.yml` file located in the **root** of the project. 
-> 
+> **💡 Recommendation:** The easiest way to run the _entire_ application (Frontend + Backend + Database) is using the `docker-compose.yml` file located in the **root** of the project.
+>
 > If you want to run the frontend in isolation for development, follow the steps below.
 
 ### 📋 Prerequisites
 
 Before you begin, ensure you have the following installed:
+
 - **Node.js** (v24 LTS recommended)
 - **pnpm** (v12.x required)
 - The **API Backend** must be running (see [../api/README.md](../api/README.md))
@@ -51,10 +52,12 @@ cp sample.env .env.local
 ```
 
 Inside `.env.local`, you will find:
+
 ```env
 BACKEND_API_URL=http://localhost:8000
 ```
-*Note: This URL points to your locally running FastAPI backend. Next.js uses this to proxy API requests internally, avoiding CORS issues.*
+
+_Note: This URL points to your locally running FastAPI backend. Next.js uses this to proxy API requests internally, avoiding CORS issues._
 
 ### 🛠️ 3. Running Locally (Development Mode)
 
@@ -62,11 +65,13 @@ If you are developing the frontend, running it locally without Docker provides t
 
 1. **Install Dependencies:**
    Make sure you have [pnpm v12](https://pnpm.io/) activated.
+
    ```bash
    pnpm install
    ```
 
 2. **Start the Development Server:**
+
    ```bash
    pnpm run dev
    ```
@@ -76,9 +81,10 @@ If you are developing the frontend, running it locally without Docker provides t
 
 ### 🐳 4. Running with Docker (Standalone)
 
-If you want to build and run *only* the frontend via Docker:
+If you want to build and run _only_ the frontend via Docker:
 
 1. **Build the image:**
+
    ```bash
    docker build -t privacy-chatbot-client .
    ```
@@ -89,7 +95,7 @@ If you want to build and run *only* the frontend via Docker:
      -e BACKEND_API_URL=http://localhost:8000 \
      privacy-chatbot-client
    ```
-   *(Note: Replace the URL with wherever your backend is running. If the backend is running locally, it will be `http://localhost:8000`. If running the backend via Docker, ensure you map its port to `8000` on your host so it is available at localhost. For more details, see the API README).*
+   _(Note: Replace the URL with wherever your backend is running. If the backend is running locally, it will be `http://localhost:8000`. If running the backend via Docker, ensure you map its port to `8000` on your host so it is available at localhost. For more details, see the API README)._
 
 ---
 
@@ -105,13 +111,13 @@ If you want to build and run *only* the frontend via Docker:
 
 ## 🏗️ Tech Stack
 
-| Technology | Purpose |
-|---|---|
-| **Next.js** | React framework utilizing the App Router |
-| **React 19** | Core UI library for building interactive components |
-| **TypeScript** | Ensures type-safe JavaScript across the application |
+| Technology          | Purpose                                                |
+| ------------------- | ------------------------------------------------------ |
+| **Next.js**         | React framework utilizing the App Router               |
+| **React 19**        | Core UI library for building interactive components    |
+| **TypeScript**      | Ensures type-safe JavaScript across the application    |
 | **Tailwind CSS v4** | Utility-first CSS framework for rapid, premium styling |
-| **pnpm v12** | Fast, disk space efficient package manager |
+| **pnpm v12**        | Fast, disk space efficient package manager             |
 
 ---
 
