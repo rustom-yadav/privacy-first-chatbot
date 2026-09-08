@@ -5,7 +5,7 @@
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 
-Welcome to the frontend of the **Privacy-First Chatbot**. This is a modern, dark-themed chat interface built with Next.js, React 19, TypeScript, and Tailwind CSS v4. It connects to the FastAPI backend to provide a premium, completely local, and privacy-first AI chat experience.
+Welcome to the frontend of the **Privacy-First Chatbot**. This is a modern, dark-themed chat interface built with Next.js 16, React 19, TypeScript, and Tailwind CSS v4. It connects to the FastAPI backend to provide a premium, completely local, and privacy-first AI chat experience.
 
 ---
 
@@ -23,7 +23,7 @@ Welcome to the frontend of the **Privacy-First Chatbot**. This is a modern, dark
 
 ## 🚀 Getting Started
 
-> **💡 Recommendation:** The easiest way to run the _entire_ application (Frontend + Backend + Database) is using the `docker-compose.yml` file located in the **root** of the project.
+> **💡 Recommendation:** The easiest way to run the _entire_ application (Frontend + Backend + Database) is using the `pnpm run dev` or `docker compose up -d --build` from the root directory.
 >
 > If you want to run the frontend in isolation for development, follow the steps below.
 
@@ -56,8 +56,7 @@ Inside `.env.local`, you will find:
 ```env
 BACKEND_API_URL=http://localhost:8000
 ```
-
-_Note: This URL points to your locally running FastAPI backend. Next.js uses this to proxy API requests internally, avoiding CORS issues._
+**Note: Adjust the `BACKEND_API_URL` if your backend is running on a different host or port.**
 
 ### 🛠️ 3. Running Locally (Development Mode)
 
@@ -95,7 +94,7 @@ If you want to build and run _only_ the frontend via Docker:
      -e BACKEND_API_URL=http://localhost:8000 \
      privacy-chatbot-client
    ```
-   _(Note: Replace the URL with wherever your backend is running. If the backend is running locally, it will be `http://localhost:8000`. If running the backend via Docker, ensure you map its port to `8000` on your host so it is available at localhost. For more details, see the API README)._
+   **Note: Adjust the `BACKEND_API_URL` if your backend is running on a different host or port.**
 
 ---
 
