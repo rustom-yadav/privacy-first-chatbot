@@ -1,93 +1,234 @@
-# 🛡️ Privacy-First Chatbot API
+# 🛡️ Privacy-First Chatbot — API (Backend)
 
-Welcome to the backend API of the **Privacy-First Chatbot**. This project provides a 100% local, secure Retrieval-Augmented Generation (RAG) pipeline. No data ever leaves your machine!
+![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-RAG-1C3C3C?style=for-the-badge)
+![Ollama](https://img.shields.io/badge/Ollama-Local_LLM-black?style=for-the-badge)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-## 🚀 Getting Started Step-by-Step
+Welcome to the backend of the **Privacy-First Chatbot**. This is a FastAPI-based, local RAG API built with Python 3.12, LangChain, ChromaDB, and Ollama. It accepts PDFs, indexes their text locally, and answers questions using the relevant document context without sending your data to a cloud AI provider.
 
-Follow these simple steps to run the project on your machine.
+---
 
-### Step 1: Clone the Repository
-First, clone the project to your local computer and navigate into the `api` folder:
+## ✨ Features
+
+- **🔒 Privacy-First Design** — PDF processing, embeddings, chat history, and LLM inference stay on your machine.
+- **📄 PDF Document Management** — Upload, list, replace, and delete indexed PDF documents.
+- **🧠 Hybrid RAG Retrieval** — Combines semantic similarity, MMR diversity search, and BM25 keyword search to find useful context.
+- **💬 Session-Based Chat** — Creates anonymous chat sessions and preserves their history in SQLite across server restarts.
+- **🔎 Source Attribution** — Returns the filename and page number behind every answer.
+- **💾 Local Persistence** — Stores document vectors in ChromaDB and chat history in SQLite.
+- **🏥 Health Monitoring** — Reports whether the API can reach Ollama and ChromaDB.
+- **🛡️ API Protection** — Validates PDFs, sanitizes filenames, limits request sizes, restricts CORS, and rate-limits chat and upload routes.
+
+---
+
+## 🚀 Getting Started
+
+> **💡 Recommendation:** The easiest way to run the _entire_ application
+> (Frontend + Backend + Database + Ollama) is using the `pnpm run dev` or
+> `docker compose up -d --build` from the root directory.
+>
+> With `pnpm run dev`, Ollama must already be running on your laptop and the
+> model you pulled must exactly match `LLM_MODEL` in `api/.env`. With Docker
+> Compose, no separate Ollama setup is needed: Docker starts Ollama and
+> downloads the model configured in the root `.env` automatically.
+>
+> If you want to run the API in isolation for development, follow the steps below.
+
+### 📋 Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Python** (v3.12 or newer)
+- **uv** ([installation guide](https://docs.astral.sh/uv/))
+- **Ollama** ([download Ollama](https://ollama.com/download))
+- The `llama3.2` Ollama model, or the model configured through `LLM_MODEL`
+
+### 📂 1. Navigate to the API Directory
+
+All commands below must be run from inside the `api` folder:
+
 ```bash
-git clone [privacy-first-chatbot](https://github.com/rustom-yadav/privacy-first-chatbot.git)
-cd Privacy_First_Chatbot/api
+cd api
 ```
 
-### Step 2: Set Up Environment Variables
-We need an environment file to store configuration. Copy the sample file to create your own:
+### ⚙️ 2. Environment Setup
+
+Copy the sample environment file to create your local configuration:
+
 ```bash
 cp sample.env .env
 ```
 
-### Step 3: Install & Start Ollama (Required)
-Because this chatbot guarantees privacy by running entirely on your machine, you need **Ollama** to run the AI models.
-1. Download and install from [ollama.com](https://ollama.com/download).
-2. Start the Ollama application.
-3. Open your terminal and download a model (like `llama3.2`):
+Inside `.env`, you will find:
+
+```env
+PORT=8000
+OLLAMA_HOST=http://localhost:11434
+LLM_MODEL=llama3.2
+EMBEDDING_MODEL=all-MiniLM-L6-v2
+ALLOWED_ORIGINS=["http://localhost:3000"]
+```
+
+**Note: Adjust `OLLAMA_HOST`, `LLM_MODEL`, and `ALLOWED_ORIGINS` if your local setup uses different values.**
+
+### 🛠️ 3. Running Locally (Development Mode)
+
+If you are developing the API, running it locally provides automatic reloads and direct access to the interactive API documentation.
+
+1. **Install Dependencies:**
+   Make sure you have [uv](https://docs.astral.sh/uv/) installed.
+
+   ```bash
+   uv sync
+   ```
+
+2. **Prepare the Local LLM:**
+
    ```bash
    ollama pull llama3.2
    ```
-   > ⚠️ **IMPORTANT**: Whichever model you pull here (e.g., `llama3.2`), make sure the exact same name is set as the `LLM_MODEL` variable in your `.env` file! Otherwise, the application will not be able to generate answers.
 
-*(Note: Ollama must be running on your main computer's OS, not inside Docker).*
+   Ensure Ollama is running before starting the API. If it is not running as a
+   desktop service, start it with:
 
----
+   ```bash
+   ollama serve
+   ```
+   You can verify that Ollama is running at
+   [http://localhost:11434](http://localhost:11434).
 
-### Step 4: Run the Application (Choose Option A or B)
+3. **Start the Development Server:**
 
-#### Option A: Run using Docker (Recommended)
-Docker is the easiest way to run the API. It packages Python, all libraries, and settings into a single container so you don't have to worry about installation errors or "it works on my machine" issues.
+   ```bash
+   uv run uvicorn main:app --reload --port 8000
+   ```
+
+4. **Access the API:**
+   Open **[http://localhost:8000/docs](http://localhost:8000/docs)** to use Swagger UI, or use **[http://localhost:8000/redoc](http://localhost:8000/redoc)** for ReDoc.
+
+### 🐳 4. Running with Docker (Standalone)
+
+If you want to build and run _only_ the API via Docker:
 
 1. **Build the image:**
-   This reads the `Dockerfile` and builds the app.
+
    ```bash
    docker build -t privacy-chatbot-api .
    ```
 
 2. **Run the container:**
-   The command depends on your Operating System because the container needs to talk to Ollama running on your host machine.
 
-   **For Mac and Windows (using Docker Desktop with WSL2):**
-   *(We use `host.docker.internal` to let the container reach your host's localhost).*
+   > **Note:** The container automatically fixes ownership of mounted folders
+   > at startup. Docker creates them when needed, so you do not need to create
+   > or `chown` them manually.
+
+   **On macOS or Windows (Git Bash / WSL):**
+
    ```bash
-   docker run -p 8000:8000 \
+   docker run --rm -p 8000:8000 \
+     --env-file .env \
      -e OLLAMA_HOST=http://host.docker.internal:11434 \
-     -v $(pwd)/chroma_db:/app/chroma_db \
-     -v $(pwd)/uploaded_docs:/app/uploaded_docs \
+     -v "${PWD}/chroma_db:/app/chroma_db" \
+     -v "${PWD}/uploaded_docs:/app/uploaded_docs" \
+     -v "${PWD}/local_db:/app/local_db" \
      privacy-chatbot-api
    ```
 
-   **For Linux:**
-   *(Linux Docker can share the host network directly using `--network="host"`).*
+   **On Linux:**
+
    ```bash
-   docker run --network="host" \
-     -v $(pwd)/chroma_db:/app/chroma_db \
-     -v $(pwd)/uploaded_docs:/app/uploaded_docs \
+   docker run --rm --network host \
+     --env-file .env \
+     -e OLLAMA_HOST=http://localhost:11434 \
+     -v "${PWD}/chroma_db:/app/chroma_db" \
+     -v "${PWD}/uploaded_docs:/app/uploaded_docs" \
+     -v "${PWD}/local_db:/app/local_db" \
      privacy-chatbot-api
    ```
 
-#### Option B: Run Without Docker (Local Setup)
-If you don't want to use Docker, you can run the Python app directly.
-
-1. **Install Dependencies:**
-   Make sure you have [uv](https://docs.astral.sh/uv/) installed, then run:
-   ```bash
-   uv sync
-   ```
-2. **Activate the Virtual Environment:**
-   - Linux/Mac/WSL: `source .venv/bin/activate`
-   - Pure Windows (CMD/PowerShell): `.venv\Scripts\activate`
-3. **Start the Server:**
-   ```bash
-   uvicorn main:app --reload
-   ```
+   > **Note:** `--network host` exposes the app directly on the host's
+   > network, so `-p 8000:8000` is not needed on Linux.
 
 ---
 
-## 🌐 How to Use (Swagger UI)
-Once your server is running (via Docker or locally), you can test everything directly in your browser:
+## 🌐 How to Use the API
 
-1. Open **[http://localhost:8000/docs](http://localhost:8000/docs)**
-2. **Health Check (`GET /health`)**: Click "Try it out" and execute to ensure the API connects to Ollama successfully.
-3. **Upload Document (`POST /api/document/upload`)**: Upload a PDF file. The system will save it and generate search embeddings.
-4. **Chat (`POST /api/chat/message`)**: Send a question. The AI will search your uploaded PDF and answer based on your private document!
+1. **Open Swagger UI:** Go to **[http://localhost:8000/docs](http://localhost:8000/docs)**
+   after the server starts. Each endpoint is grouped under **Health Check**,
+   **Document Ingestion (RAG)**, or **AI Chatbot**.
+2. **Check API Health:** Expand `GET /health`, click **Try it out**, then
+   **Execute**. Confirm that the response reports both Ollama and ChromaDB as
+   available before uploading a document.
+3. **Upload a PDF:** Expand `POST /api/document/upload`, click **Try it out**,
+   choose a text-based PDF in the `file` field, then click **Execute**. A
+   successful response includes the filename and the number of indexed chunks.
+   The API extracts the text, splits it into chunks, creates local Hugging Face
+   embeddings, and saves them in ChromaDB.
+4. **Confirm the Document:** Run `GET /api/document/list` from Swagger UI. The
+   response shows every indexed filename and its chunk count.
+5. **Ask a Question:** Open `POST /api/chat`, click **Try it out**, and replace
+   the request body with:
+
+   ```json
+   {
+     "query": "What are the main points in this document?"
+   }
+   ```
+
+   Click **Execute**. The API combines similarity, MMR, and BM25 retrieval,
+   then sends the relevant context to Ollama for a grounded answer.
+6. **Continue or Clear a Session:** Copy the `session_id` returned by the chat
+   response into the next chat request to retain conversation context. To remove
+   that history, use `DELETE /api/chat/history` and provide the same `session_id`
+   as its query parameter.
+7. **Review Sources and Clean Up:** Each chat response includes `sources` with
+   the supporting filename and page numbers. Use `DELETE /api/document/{filename}`
+   when you want to remove an indexed PDF and its stored vectors.
+
+---
+
+## 🏗️ Tech Stack
+
+| Technology | Purpose |
+| --- | --- |
+| **Python 3.12+** | Backend runtime |
+| **FastAPI** | API framework with automatic OpenAPI documentation |
+| **Uvicorn** | ASGI server for running the FastAPI application |
+| **LangChain** | Document processing and RAG orchestration |
+| **Ollama** | Fully local LLM inference |
+| **ChromaDB** | Persistent vector database for document chunks |
+| **Hugging Face Sentence Transformers** | Local document embeddings |
+| **BM25** | Keyword-based document retrieval |
+| **pypdf** | PDF text extraction |
+| **SQLite** | Persistent anonymous chat-session history |
+| **uv** | Python dependency and environment management |
+| **Docker** | Standalone containerized API deployment |
+
+---
+
+## 📁 Project Structure
+
+```text
+api/
+├── main.py                  # FastAPI app, middleware, routes, and health check
+├── app/
+│   ├── config.py            # Environment-backed settings and local storage paths
+│   ├── exceptions.py        # Application-specific errors
+│   ├── middleware/          # Request logging, rate limiting, and error handling
+│   ├── models/
+│   │   └── schemas.py       # Request and response models
+│   ├── routes/
+│   │   ├── chat.py          # Chat and session-history endpoints
+│   │   └── document.py      # PDF upload, list, and delete endpoints
+│   └── services/
+│       ├── rag_service.py   # PDF ingestion, chunking, embeddings, and ChromaDB
+│       ├── llm_service.py   # Hybrid retrieval and Ollama answer generation
+│       ├── bm25_retriever.py  # Keyword retrieval index
+│       └── session_service.py # SQLite chat-session persistence
+├── Dockerfile               # Multi-stage API image
+├── pyproject.toml           # Python dependencies and tooling
+├── sample.env               # Environment variable reference
+└── uv.lock                  # Locked Python dependencies
+```

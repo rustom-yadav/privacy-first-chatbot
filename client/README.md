@@ -23,7 +23,7 @@ Welcome to the frontend of the **Privacy-First Chatbot**. This is a modern, dark
 
 ## 🚀 Getting Started
 
-> **💡 Recommendation:** The easiest way to run the _entire_ application (Frontend + Backend + Database) is using the `pnpm run dev` or `docker compose up -d --build` from the root directory.
+> **💡 Recommendation:** The easiest way to run the _entire_ application (Frontend + Backend + Database + ollama) is using the `pnpm run dev` or `docker compose up -d --build` from the root directory. With `pnpm run dev`, Ollama must already be running on your laptop and the model you pulled must exactly match `LLM_MODEL` in `api/.env`. With Docker Compose, no separate Ollama setup is needed: Docker starts Ollama and downloads the model configured in the root `.env` automatically.
 >
 > If you want to run the frontend in isolation for development, follow the steps below.
 
