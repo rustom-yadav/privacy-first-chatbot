@@ -54,9 +54,10 @@ cp sample.env .env.local
 Inside `.env.local`, you will find:
 
 ```env
-BACKEND_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
-**Note: Adjust the `BACKEND_API_URL` if your backend is running on a different host or port.**
+
+**Note: Adjust the `NEXT_PUBLIC_API_URL` if your backend is running on a different host or port.**
 
 ### 🛠️ 3. Running Locally (Development Mode)
 
@@ -85,16 +86,18 @@ If you want to build and run _only_ the frontend via Docker:
 1. **Build the image:**
 
    ```bash
-   docker build -t privacy-chatbot-client .
+      docker build \
+        --build-arg NEXT_PUBLIC_API_URL=http://localhost:8000 \
+        -t privacy-chatbot-client .
    ```
 
 2. **Run the container:**
+
    ```bash
-   docker run -p 3000:3000 \
-     -e BACKEND_API_URL=http://localhost:8000 \
-     privacy-chatbot-client
+   docker run -p 3000:3000 privacy-chatbot-client
    ```
-   **Note: Adjust the `BACKEND_API_URL` if your backend is running on a different host or port.**
+
+   **Note: Adjust the `NEXT_PUBLIC_API_URL` if your backend is running on a different host or port.**
 
 ---
 
@@ -137,7 +140,7 @@ client/
 │       ├── api.ts            # Type-safe API client (handles proxy routing)
 │       └── types.ts          # TypeScript interfaces
 ├── Dockerfile                # Multi-stage Docker build (deps, builder, runner)
-├── next.config.ts            # Next.js config with API rewrites
+├── next.config.ts            # Next.js configuration (standalone, compiler etc.)
 ├── sample.env                # Environment variable reference
 └── package.json              # Project dependencies and scripts
 ```
