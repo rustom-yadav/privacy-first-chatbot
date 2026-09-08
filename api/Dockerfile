@@ -20,6 +20,11 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
+# Install gosu for safe privilege dropping (root -> appuser at runtime)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gosu && \
+    rm -rf /var/lib/apt/lists/*
+
 # Create non-root user for security
 RUN groupadd --gid 1000 appuser && \
     useradd --uid 1000 --gid 1000 --create-home appuser
@@ -30,16 +35,16 @@ COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
 # Copy application code
 COPY --chown=appuser:appuser . .
 
-# Copy sample.env as .env for default config values
-# (docker-compose environment variables will override these at runtime)
-COPY --chown=appuser:appuser sample.env .env
-
-# Ensure the directories exist and set correct ownership BEFORE switching user
+# Ensure the persistent-data directories exist and set correct ownership
+# at build-time (matters for compose named volumes on first creation)
 RUN mkdir -p uploaded_docs chroma_db local_db && \
     chown -R appuser:appuser uploaded_docs chroma_db local_db
 
-# Switch to non-root user for security
-USER appuser
+# Entrypoint script: fixes ownership at container start (covers bind
+# mounts too, whose ownership comes from the host), then drops from
+# root to appuser before running the actual app.
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Add venv to PATH
 ENV PATH="/app/.venv/bin:$PATH"
@@ -47,4 +52,8 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
 
+# NOTE: No `USER appuser` here — container starts as root so the
+# entrypoint can fix volume ownership; it then drops to appuser itself
+# via gosu before running the app. The app process never runs as root.
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
