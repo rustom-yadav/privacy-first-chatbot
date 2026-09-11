@@ -24,9 +24,9 @@ Both are orchestrated together via Docker Compose, along with **Ollama** for ful
 - **💬 Real-time Chat with Source Attribution** — Ask questions and get AI answers backed by the exact filename and page number they came from.
 - **📄 PDF Document Management** — Upload, list, and delete indexed PDF documents from a polished sidebar UI.
 - **🧠 Hybrid RAG Retrieval** — Combines semantic similarity, MMR diversity search, and BM25 keyword search for high-quality context.
-- **💾 Persistent Sessions** — Chat history persists in SQLite on the backend and in `localStorage` on the frontend.
+- **💾 Persistent Sessions** — Chat history persists in SQLite database in the backend.
 - **🎨 Premium Dark UI** — Glassmorphism, smooth animations, and an emerald accent theme.
-- **🏥 Health Monitoring** — Live status indicator that checks connectivity to both Ollama and ChromaDB.
+- **🏥 Health Monitoring** — The client indicator checks whether the API is online or down.
 - **🐳 One-Command Setup** — Spin up the frontend, backend, database, and local LLM together with a single Docker Compose command.
 
 ---
@@ -54,7 +54,7 @@ The `client` talks only to the `api`. The `api` handles PDF ingestion, embedding
 
 > **💡 Recommendation:** The easiest way to run the entire application is with **Docker Compose** — it starts the frontend, backend, ChromaDB storage, and Ollama (and automatically pulls the configured model) with a single command.
 >
-> If Ollama is already running on your machine, start the complete application without Docker by running `pnpm run dev` from the project root. The command uses `concurrently` to launch and manage the frontend and backend together.
+> If Ollama is already running on your machine and you want to run the application without Docker, you can start the complete application without Docker by running `pnpm run dev` from the project root. The command uses `concurrently` to launch and manage the frontend and backend together.
 >
 > If you'd rather run each service manually for development (hot-reload, debugging, etc.), see the [`client/README.md`](./client/README.md) and [`api/README.md`](./api/README.md) guides.
 
@@ -63,7 +63,7 @@ The `client` talks only to the `api`. The `api` handles PDF ingestion, embedding
 Before you begin, ensure you have the following installed:
 
 - **Docker** ([install guide](https://docs.docker.com/get-docker/))
-- *(Only for manual/non-Docker dev mode)* **Node.js** (v24 LTS), **pnpm** (v12.x), **Python** (v3.12+), **uv**, and **Ollama** installed locally.
+- *(Optional if you want to run the application without Docker)* **Node.js** (v24 LTS), **pnpm** (v12.x), **Python** (v3.12+), **uv**, and **Ollama** installed locally.
 
 ### ⚙️ 1. Environment Setup
 
