@@ -5,11 +5,20 @@ import ChatWindow from '@/components/chat/ChatWindow';
 import Sidebar from '@/components/sidebar/Sidebar';
 import { useChat } from '@/hooks/useChat';
 import { useDocuments } from '@/hooks/useDocuments';
+import { useSessionHistory } from '@/hooks/useSessionHistory';
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const chat = useChat();
   const docs = useDocuments();
+  const history = useSessionHistory(chat.sessionId);
+
+  const handleDeleteSession = (id: string) => {
+    history.deleteSession(id);
+    if (chat.sessionId === id) {
+      chat.startNewChat();
+    }
+  };
 
   return (
     <div
@@ -19,6 +28,10 @@ export default function Home() {
       {/* Sidebar */}
       <Sidebar
         documents={docs.documents}
+        sessions={history.sessions}
+        activeSessionId={chat.sessionId}
+        onSelectSession={chat.loadSession}
+        onDeleteSession={handleDeleteSession}
         isLoadingDocs={docs.isLoading}
         isUploading={docs.isUploading}
         uploadSuccess={docs.uploadSuccess}

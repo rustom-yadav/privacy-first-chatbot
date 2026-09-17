@@ -37,6 +37,26 @@ export interface ClearHistoryResponseData {
   message: string;
 }
 
+export interface SessionSummary {
+  session_id: string;
+  message_count: number;
+  first_message: string;
+  last_message: string;
+  preview: string;
+}
+
+export interface SessionMessage {
+  role: 'human' | 'ai';
+  content: string;
+  created_at: string;
+}
+
+export interface SessionMessagesData {
+  session_id: string;
+  messages: SessionMessage[];
+}
+
+
 // ── Document Schemas ───────────────────────────────────────────────
 
 export interface DocumentInfo {

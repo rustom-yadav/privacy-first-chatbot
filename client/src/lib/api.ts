@@ -6,6 +6,8 @@ import type {
   DocumentInfo,
   HealthCheckResponse,
   UploadResponseData,
+  SessionSummary,
+  SessionMessagesData,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -62,6 +64,14 @@ export async function clearHistory(
       method: 'DELETE',
     }
   );
+}
+
+export async function listSessions(limit = 50, offset = 0): Promise<APIResponse<SessionSummary[]>> {
+  return apiFetch<SessionSummary[]>(`/api/chat/sessions?limit=${limit}&offset=${offset}`, { method: 'GET' });
+}
+
+export async function getSessionMessages(sessionId: string): Promise<APIResponse<SessionMessagesData>> {
+  return apiFetch<SessionMessagesData>(`/api/chat/sessions/${encodeURIComponent(sessionId)}`, { method: 'GET' });
 }
 
 // ── Document Endpoints ─────────────────────────────────────────────
