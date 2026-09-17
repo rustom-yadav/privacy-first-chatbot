@@ -21,3 +21,4 @@ local_db/
 # --- Environment & OS Files ---
 .env
 .DS_Store
+plan_files/
