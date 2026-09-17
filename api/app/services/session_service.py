@@ -148,34 +148,60 @@ class SessionService:
             ).fetchone()
         return row is not None
 
-    def get_all_sessions(self) -> list[dict]:
+    def get_all_sessions(self, limit: int = 50, offset: int = 0) -> list[dict]:
         """
-        Returns a summary of all active sessions.
-        Useful for admin/debug purposes.
+        Returns a summary of all active sessions, ordered latest first.
+        Includes a preview of the first human message.
         """
         with self._get_connection() as conn:
             rows = conn.execute(
                 """
-                SELECT
-                    session_id,
-                    COUNT(*) as message_count,
-                    MIN(created_at) as first_message,
-                    MAX(created_at) as last_message
-                FROM chat_messages
-                GROUP BY session_id
+                SELECT 
+                    s.session_id,
+                    COUNT(m.id) as message_count,
+                    MIN(m.created_at) as first_message,
+                    MAX(m.created_at) as last_message,
+                    (SELECT content FROM chat_messages 
+                     WHERE session_id = s.session_id AND role = 'human' 
+                     ORDER BY created_at ASC LIMIT 1) as preview
+                FROM (SELECT DISTINCT session_id FROM chat_messages) s
+                JOIN chat_messages m ON s.session_id = m.session_id
+                GROUP BY s.session_id
                 ORDER BY last_message DESC
-                """
+                LIMIT ? OFFSET ?
+                """,
+                (limit, offset)
             ).fetchall()
 
-        return [
-            {
+        # Process and truncate preview to ~50 chars
+        results = []
+        for row in rows:
+            preview_text = row["preview"] or "Empty chat"
+            if len(preview_text) > 50:
+                preview_text = preview_text[:47] + "..."
+                
+            results.append({
                 "session_id": row["session_id"],
                 "message_count": row["message_count"],
                 "first_message": row["first_message"],
                 "last_message": row["last_message"],
-            }
-            for row in rows
-        ]
+                "preview": preview_text,
+            })
+        return results
+
+    def get_session_messages(self, session_id: str) -> list[dict]:
+        with self._get_connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT role, content, created_at
+                FROM chat_messages
+                WHERE session_id = ?
+                ORDER BY created_at ASC
+                """,
+                (session_id,)
+            ).fetchall()
+            
+        return [dict(row) for row in rows]
 
 
 # Singleton instance
