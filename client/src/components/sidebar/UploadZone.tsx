@@ -47,7 +47,7 @@ export default function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onClick={() => !isUploading && inputRef.current?.click()}
-      className={`relative rounded-xl border-2 border-dashed p-4 text-center cursor-pointer transition-all ${
+      className={`relative rounded-xl border-2 border-dashed p-3 text-center cursor-pointer transition-all ${
         isDragOver
           ? 'drop-zone-active border-brand-primary bg-brand-glow'
           : 'border-border-subtle hover:border-text-muted/30 hover:bg-surface-overlay/30'
@@ -65,9 +65,9 @@ export default function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
       />
 
       {isUploading ? (
-        <div className="flex flex-col items-center gap-2 py-2">
+        <div className="flex flex-row items-center justify-center gap-3 py-1">
           <svg
-            className="w-6 h-6 animate-spin text-brand-primary"
+            className="w-5 h-5 animate-spin text-brand-primary"
             fill="none"
             viewBox="0 0 24 24"
           >
@@ -85,13 +85,13 @@ export default function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
             />
           </svg>
-          <p className="text-xs text-text-secondary">Processing document...</p>
+          <p className="text-xs text-text-secondary">Processing...</p>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-2 py-2">
-          <div className="w-10 h-10 rounded-xl bg-brand-glow flex items-center justify-center">
+        <div className="flex flex-row items-center justify-center gap-3 py-1">
+          <div className="w-8 h-8 rounded-lg bg-brand-glow flex items-center justify-center shrink-0">
             <svg
-              className="w-5 h-5 text-brand-primary"
+              className="w-4 h-4 text-brand-primary"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -104,11 +104,11 @@ export default function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
               />
             </svg>
           </div>
-          <div>
-            <p className="text-sm font-medium text-text-primary">
-              Drop PDF here or click
+          <div className="text-left">
+            <p className="text-xs font-medium text-text-primary leading-tight">
+              Drop PDF or click
             </p>
-            <p className="text-xs text-text-muted mt-0.5">Max 50 MB</p>
+            <p className="text-[10px] text-text-muted mt-0.5">Max 50 MB</p>
           </div>
         </div>
       )}

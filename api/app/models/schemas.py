@@ -6,6 +6,8 @@ The generic APIResponse[T] envelope wraps every response with
 success/error status for uniform client-side handling.
 """
 
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -83,3 +85,22 @@ class UploadResponseData(BaseModel):
     filename: str
     chunk_count: int
     message: str
+
+
+class SessionSummary(BaseModel):
+    session_id: str
+    message_count: int
+    first_message: datetime
+    last_message: datetime
+    preview: str = Field(..., description="Truncated text of the first human message")
+
+
+class SessionMessage(BaseModel):
+    role: str
+    content: str
+    created_at: datetime
+
+
+class SessionMessagesData(BaseModel):
+    session_id: str
+    messages: list[SessionMessage]

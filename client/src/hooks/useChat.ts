@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { sendChat, clearHistory } from '@/lib/api';
+import { sendChat, getSessionMessages } from '@/lib/api';
 import type { Message } from '@/lib/types';
 
 //Generates a random hex session ID (32 chars, like Python's uuid4().hex).
@@ -96,16 +96,7 @@ export function useChat() {
   );
 
   //Starts a new chat session — clears messages and generates new session ID.
-  const startNewChat = useCallback(async () => {
-    // Clear history on the backend
-    if (sessionId) {
-      try {
-        await clearHistory(sessionId);
-      } catch {
-        // Silent fail — local state will be cleared regardless
-      }
-    }
-
+  const startNewChat = useCallback(() => {
     // Reset local state
     setMessages([]);
     setError(null);
@@ -114,7 +105,28 @@ export function useChat() {
     const newId = generateSessionId();
     setSessionId(newId);
     localStorage.setItem(SESSION_KEY, newId);
-  }, [sessionId]);
+  }, []);
+
+  const loadSession = useCallback(async (id: string) => {
+    setIsLoading(true);
+    try {
+      const res = await getSessionMessages(id);
+      if (res.success && res.data) {
+        setSessionId(id);
+        localStorage.setItem(SESSION_KEY, id);
+        // Map backend messages to local Message type
+        const mapped: Message[] = res.data.messages.map((m, i) => ({
+          id: `${m.role}-${i}`,
+          role: m.role,
+          content: m.content,
+          timestamp: new Date(m.created_at).getTime(),
+        }));
+        setMessages(mapped);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   //Cancels any ongoing request (for future streaming support).
   const cancelRequest = useCallback(() => {
@@ -132,6 +144,7 @@ export function useChat() {
     sessionId,
     sendMessage,
     startNewChat,
+    loadSession,
     cancelRequest,
     setError,
   };

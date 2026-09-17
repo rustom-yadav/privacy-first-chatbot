@@ -17,6 +17,7 @@ chroma_db/
 ollama_models/
 uploaded_docs/
 local_db/
+plan_files/
 
 # --- Environment & OS Files ---
 .env
