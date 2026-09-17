@@ -151,16 +151,9 @@ export default function Sidebar({
           </button>
         </div>
 
-        {/* Documents & Sessions section */}
-        <div className="flex-1 overflow-y-auto pt-2 pb-4">
-          <SessionList
-            sessions={sessions}
-            activeSessionId={activeSessionId}
-            onSelectSession={onSelectSession}
-            onDeleteSession={onDeleteSession}
-          />
-          
-          <div className="flex items-center justify-between mb-3 px-4">
+        {/* Documents Section */}
+        <div className="flex flex-col max-h-[45vh] border-b border-border-subtle shrink-0">
+          <div className="flex items-center justify-between mb-3 px-4 pt-4 shrink-0">
             <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider">
               Documents
             </h3>
@@ -172,13 +165,13 @@ export default function Sidebar({
           </div>
 
           {/* Upload zone */}
-          <div className="mb-3 px-4">
+          <div className="mb-3 px-4 shrink-0">
             <UploadZone onUpload={onUpload} isUploading={isUploading} />
           </div>
 
           {/* Upload success message */}
           {uploadSuccess && (
-            <div className="mb-3 mx-4 px-3 py-2.5 rounded-xl bg-brand-primary/10 border border-brand-primary/20 animate-fade-in">
+            <div className="mb-3 mx-4 px-3 py-2.5 rounded-xl bg-brand-primary/10 border border-brand-primary/20 animate-fade-in shrink-0">
               <div className="flex items-start gap-2">
                 <svg
                   className="w-4 h-4 text-brand-primary shrink-0 mt-0.5"
@@ -220,49 +213,61 @@ export default function Sidebar({
 
           {/* Document error */}
           {docError && (
-            <div className="mb-3 mx-4 px-3 py-2.5 rounded-xl bg-status-down/10 border border-status-down/20 animate-fade-in">
+            <div className="mb-3 mx-4 px-3 py-2.5 rounded-xl bg-status-down/10 border border-status-down/20 animate-fade-in shrink-0">
               <p className="text-xs text-status-down">{docError}</p>
             </div>
           )}
 
-          {/* Document list */}
-          {isLoadingDocs ? (
-            <div className="space-y-2 px-4">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-16 rounded-xl animate-shimmer" />
-              ))}
-            </div>
-          ) : documents.length === 0 ? (
-            <div className="text-center py-6 px-4">
-              <svg
-                className="w-10 h-10 text-text-muted/30 mx-auto mb-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12H9.75m0 0l2.25-2.25M9.75 15l2.25 2.25M13.5 3H7.5A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h9a2.25 2.25 0 002.25-2.25V8.25"
-                />
-              </svg>
-              <p className="text-xs text-text-muted">No documents yet</p>
-              <p className="text-xs text-text-muted/60 mt-0.5">
-                Upload a PDF to get started
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2 px-4">
-              {documents.map((doc) => (
-                <DocumentCard
-                  key={doc.filename}
-                  document={doc}
-                  onDelete={onDeleteDoc}
-                />
-              ))}
-            </div>
-          )}
+          {/* Document list (Scrollable) */}
+          <div className="overflow-y-auto pb-4">
+            {isLoadingDocs ? (
+              <div className="space-y-2 px-4">
+                {[1, 2].map((i) => (
+                  <div key={i} className="h-16 rounded-xl animate-shimmer" />
+                ))}
+              </div>
+            ) : documents.length === 0 ? (
+              <div className="text-center py-6 px-4">
+                <svg
+                  className="w-10 h-10 text-text-muted/30 mx-auto mb-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12H9.75m0 0l2.25-2.25M9.75 15l2.25 2.25M13.5 3H7.5A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h9a2.25 2.25 0 002.25-2.25V8.25"
+                  />
+                </svg>
+                <p className="text-xs text-text-muted">No documents yet</p>
+                <p className="text-xs text-text-muted/60 mt-0.5">
+                  Upload a PDF to get started
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2 px-4">
+                {documents.map((doc) => (
+                  <DocumentCard
+                    key={doc.filename}
+                    document={doc}
+                    onDelete={onDeleteDoc}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Sessions Section (Takes remaining height, scrollable) */}
+        <div className="flex-1 overflow-y-auto pt-4 pb-4">
+          <SessionList
+            sessions={sessions}
+            activeSessionId={activeSessionId}
+            onSelectSession={onSelectSession}
+            onDeleteSession={onDeleteSession}
+          />
         </div>
 
         {/* Footer: Health status */}
