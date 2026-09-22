@@ -1,33 +1,40 @@
 # 🛡️ Privacy-First Chatbot
 
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge\&logo=docker\&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge\&logo=next.js\&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge\&logo=fastapi\&logoColor=white)
 ![Ollama](https://img.shields.io/badge/Ollama-Local_LLM-black?style=for-the-badge)
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge\&logo=typescript\&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge\&logo=python\&logoColor=white)
 
 Welcome to the **Privacy-First Chatbot** — a fully local, Retrieval-Augmented Generation (RAG) chat application. Upload a PDF, ask questions about it, and get grounded answers with source attribution — without any of your data ever leaving your machine.
 
 This is a monorepo containing two services:
 
-- **[`client/`](./client/README.md)** — A Next.js 16 + React 19 + Tailwind CSS v4 frontend chat interface.
-- **[`api/`](./api/README.md)** — A FastAPI + LangChain + ChromaDB + Ollama backend RAG engine.
+* **[`client/`](./client/README.md)** — A Next.js 16 + React 19 + Tailwind CSS v4 frontend chat interface.
+* **[`api/`](./api/README.md)** — A FastAPI + LangChain + ChromaDB + SQLite + Ollama backend RAG engine.
 
-Both are orchestrated together via Docker Compose, along with **Ollama** for fully local LLM inference.
+Both are orchestrated together via Docker Compose or pnpm concurrently along with **Ollama** for fully local LLM inference.
 
 ---
 
 ## ✨ Features
 
-- **🔒 Privacy-First Design** — PDF processing, embeddings, chat history, and LLM inference all run locally. No data is sent to a cloud AI provider.
-- **💬 Real-time Chat with Source Attribution** — Ask questions and get AI answers backed by the exact filename and page number they came from.
-- **📄 PDF Document Management** — Upload, list, and delete indexed PDF documents from a polished sidebar UI.
-- **🧠 Hybrid RAG Retrieval** — Combines semantic similarity, MMR diversity search, and BM25 keyword search for high-quality context.
-- **💾 Persistent Sessions** — Chat history persists in SQLite database in the backend.
-- **🎨 Premium Dark UI** — Glassmorphism, smooth animations, and an emerald accent theme.
-- **🏥 Health Monitoring** — The client indicator checks whether the API is online or down.
-- **🐳 One-Command Setup** — Spin up the frontend, backend, database, and local LLM together with a single Docker Compose command.
+* **🔒 Privacy-First Design** — PDF processing, embeddings, chat history, and LLM inference all run locally. No data is sent to a cloud AI provider.
+
+* **💬 Real-time Chat with Source Attribution** — Ask questions and get AI answers backed by the exact filename and page number they came from.
+
+* **📄 PDF Document Management** — Upload, list, and delete indexed PDF documents from a polished sidebar UI.
+
+* **🧠 Hybrid RAG Retrieval** — Combines semantic similarity, MMR diversity search, and BM25 keyword search for high-quality context.
+
+* **💾 Persistent Sessions** — Chat history persists in SQLite database in the backend.
+
+* **🎨 Premium Dark UI** — Glassmorphism, smooth animations, and an emerald accent theme.
+
+* **🏥 Health Monitoring** — The client indicator checks whether the API is online or down.
+
+* **🐳 One-Command Setup** — Spin up the frontend, backend, database, and local LLM together with a single docker command or with pnpm command.
 
 ---
 
@@ -37,69 +44,66 @@ Both are orchestrated together via Docker Compose, along with **Ollama** for ful
 ┌─────────────┐        ┌─────────────┐        ┌─────────────┐
 │   client    │──────▶│     api     │──────▶│   ollama    │
 │  (Next.js)  │  HTTP  │  (FastAPI)  │  HTTP  │  (Local LLM)│
-│  :3000      │        │   :8000     │        │   :11434    │
+│    :3000    │        │    :8000    │        │   :11434    │
 └─────────────┘        └──────┬──────┘        └─────────────┘
                               │
                     ┌─────────┴─────────┐
                     │ ChromaDB (vectors)│
                     │ SQLite (sessions) │
-                    └────────────────────┘
+                    └───────────────────┘
 ```
 
-The `client` talks only to the `api`. The `api` handles PDF ingestion, embeddings, hybrid retrieval, and forwards prompts to `ollama` for generation — all within your local Docker network.
+The `client` talks only to the `api`. The `api` handles PDF ingestion, embeddings, hybrid retrieval, and forwards prompts to `ollama` for generation — all within your Local or VPS machine.
 
 ---
 
 ## 🚀 Getting Started
 
-> **💡 Recommendation:** The easiest way to run the entire application is with **Docker Compose** — it starts the frontend, backend, ChromaDB storage, and Ollama (and automatically pulls the configured model) with a single command.
->
-> If Ollama is already running on your machine and you want to run the application without Docker, you can start the complete application without Docker by running `pnpm run dev` from the project root. The command uses `concurrently` to launch and manage the frontend and backend together.
->
-> If you'd rather run each service manually for development (hot-reload, debugging, etc.), see the [`client/README.md`](./client/README.md) and [`api/README.md`](./api/README.md) guides.
+Follow these step-by-step instructions to get the Privacy-First Chatbot running on your machine (Local or VPS).
 
-### 📋 Prerequisites
+### 📥 1. Clone the Repository
 
-Before you begin, ensure you have the following installed:
+First, clone the code to your machine and open the folder. This step is required for all methods:
 
-- **Docker** ([install guide](https://docs.docker.com/get-docker/))
-- *(Optional if you want to run the application without Docker)* **Node.js** (v24 LTS), **pnpm** (v12.x), **Python** (v3.12+), **uv**, and **Ollama** installed locally.
+```bash
+git clone https://github.com/rustom-yadav/privacy-first-chatbot.git
 
-### ⚙️ 1. Environment Setup
+cd privacy-first-chatbot
+```
 
-Copy the sample environment file at the project root to create your local configuration:
+---
+
+### 🐳 Option A: Running with Docker (Easiest)
+
+**Prerequisites:**
+
+* **Docker** ([install guide](https://docs.docker.com/get-docker/))
+
+#### Step 1: Environment Setup
+
+Create the required environment file by copying the sample template for the root directory:
 
 ```bash
 cp sample.env .env
 ```
 
-Inside `.env`, you will find the variables used by `docker-compose.yml`:
+> **Note:** If you are running the project on a VPS, set `ALLOWED_ORIGINS` in your `.env` to the exact URL you use to open the frontend, e.g., `https://yourdomain.com`.
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-OLLAMA_HOST=http://ollama:11434
-LLM_MODEL=llama3.2
-```
+#### Step 2: Start the App
 
-> **Note:** You can change these values in your `.env` file whenever needed. To use a different Ollama model, update `LLM_MODEL` to the model you want to run. If you are running the project with Docker on a VPS, set `ALLOWED_ORIGINS` to the exact URL you use to open the frontend in your browser, such as `http://YOUR_VPS_IP:3000` or `https://yourdomain.com`. Also set `NEXT_PUBLIC_API_URL` to your backend URL so the frontend connects to the correct API and the backend allows the correct frontend URL through CORS.
-
-### 🐳 2. Running with Docker Compose (Recommended)
-
-From the project root:
+To run the app without manually starting local servers and models, run:
 
 ```bash
 docker compose up -d --build
 ```
 
-This will:
+This single command will:
 
-1. Build and start the **`api`** container on port `8000`.
-2. Build and start the **`client`** container on port `3000`.
-3. Start an **`ollama`** container on port `11434` for local LLM inference.
-4. Run a one-off **`ollama-pull-model`** job that waits for Ollama to be ready and automatically pulls the model set in `LLM_MODEL`.
-5. Persist data across restarts using named volumes for Ollama models, ChromaDB vectors, uploaded documents, and the SQLite database.
+1. Start the API (port 8000) and Client (port 3000).
+2. Start an Ollama container and automatically pull the model specified in your `.env` (default: `llama3.2`).
+3. Start the vector database (ChromaDB) and persist data.
 
-Once everything is up, open **[http://localhost:3000](http://localhost:3000)** in your browser.
+Once it's up, open **http://localhost:3000** in your browser!
 
 To stop everything:
 
@@ -107,42 +111,61 @@ To stop everything:
 docker compose down
 ```
 
-To stop everything **and** wipe all persisted data (models, vectors, uploads, sessions):
+---
+
+### 🛠️ Option B: Running with pnpm (Manual Dev Mode)
+
+**Prerequisites:**
+
+* **Node.js** (v24 LTS)
+* **pnpm** (v12.x)
+* **Python** (v3.12+)
+* **uv** (Python package manager)
+* **Ollama** ([download here](https://ollama.com/download)) installed and running locally.
+
+#### Step 1: Environment Setup
+
+Create the required environment files for the API and Client:
 
 ```bash
-docker compose down -v
+cp client/sample.env client/.env.local
+cp api/sample.env api/.env
 ```
 
-### 🛠️ Running Without Docker (Manual Dev Mode)
+> **Note:** If you are running the project on a VPS, set `ALLOWED_ORIGINS` in `api/.env` to the exact URL you use to open the frontend.
 
-For active development with hot-reload on both services:
+#### Step 2: Install Dependencies
 
-1. **Start Ollama locally** and pull the model matching `LLM_MODEL` in `api/.env`:
+We have created a single setup command that installs all dependencies for the entire project (Root, Client, and API) at once. Run this from the root directory:
 
-   ```bash
-   ollama serve
-   ollama pull llama3.2
-   ```
+```bash
+pnpm run setup
+```
 
-2. **Run the API** (see [`api/README.md`](./api/README.md) for full details):
+#### Step 3: Start Ollama & Pull Model
 
-   ```bash
-   cd api
-   uv sync
-   uv run uvicorn main:app --reload --port 8000
-   ```
+Ensure the Ollama app is running on your laptop. Then, pull the model you specified in your `.env` files (default is `llama3.2`):
 
-3. **Run the Client** in a separate terminal (see [`client/README.md`](./client/README.md) for full details):
+```bash
+ollama serve
+ollama pull llama3.2
+```
 
-   ```bash
-   cd client
-   pnpm install
-   pnpm run dev
-   ```
+> **Note:** The model pulled here MUST exactly match the `LLM_MODEL` variable in your `.env` files.
 
-4. **Access the App:** Open **[http://localhost:3000](http://localhost:3000)**.
+#### Step 4: Start the App
 
-> **Important:** In manual mode, Ollama must already be running on your machine, and the model you pulled must exactly match `LLM_MODEL` in `api/.env`. Docker Compose handles this automatically — manual mode does not.
+From the project root, simply run:
+
+```bash
+pnpm run dev
+```
+
+*This command uses `concurrently` to start both the Next.js frontend and the FastAPI backend side-by-side.*
+
+#### Step 5: Access the App
+
+Open **http://localhost:3000** in your browser!
 
 ---
 
@@ -160,20 +183,20 @@ For endpoint-level testing (Swagger UI, request/response formats, session manage
 
 ## 🏗️ Tech Stack
 
-| Layer | Technology | Purpose |
-| --- | --- | --- |
-| **Frontend** | Next.js 16 + React 19 | Chat UI built on the App Router |
-| **Frontend** | TypeScript | Type-safe application code |
-| **Frontend** | Tailwind CSS v4 | Utility-first, premium dark-theme styling |
-| **Backend** | FastAPI + Uvicorn + SlowApi (Rate Limiting) | REST API and ASGI server |
-| **Backend** | LangChain | RAG orchestration and document processing |
-| **Backend** | ChromaDB | Persistent vector store for document chunks |
-| **Backend** | BM25 | Keyword-based hybrid retrieval |
-| **Backend** | SQLite | Persistent anonymous chat-session history |
-| **AI** | Ollama | Fully local LLM inference |
-| **AI** | Hugging Face Sentence Transformers | Local document embeddings |
-| **Infra** | Docker Compose | One-command orchestration of all services |
-| **Tooling** | pnpm v12 / uv | Package management for client / api |
+| Layer        | Technology                                  | Purpose                                     |
+| ------------ | ------------------------------------------- | ------------------------------------------- |
+| **Frontend** | Next.js 16 + React 19                       | Chat UI built on the App Router             |
+| **Frontend** | TypeScript                                  | Type-safe application code                  |
+| **Frontend** | Tailwind CSS v4                             | Utility-first, premium dark-theme styling   |
+| **Backend**  | FastAPI + Uvicorn + SlowApi (Rate Limiting) | REST API and ASGI server                    |
+| **Backend**  | LangChain                                   | RAG orchestration and document processing   |
+| **Backend**  | ChromaDB                                    | Persistent vector store for document chunks |
+| **Backend**  | BM25                                        | Keyword-based hybrid retrieval              |
+| **Backend**  | SQLite                                      | Persistent anonymous chat-session history   |
+| **AI**       | Ollama                                      | Fully local LLM inference                   |
+| **AI**       | Hugging Face Sentence Transformers          | Local document embeddings                   |
+| **Infra**    | Docker Compose                              | One-command orchestration of all services   |
+| **Tooling**  | pnpm v12 / uv                               | Package management for client / api         |
 
 ---
 
@@ -181,23 +204,31 @@ For endpoint-level testing (Swagger UI, request/response formats, session manage
 
 ```text
 .
-├── client/                  # Next.js frontend — see client/README.md
+├── client/                   # Next.js frontend — see client/README.md
 │   ├── src/
 │   ├── Dockerfile
 │   └── sample.env
-├── api/                     # FastAPI backend — see api/README.md
+├── api/                      # FastAPI backend — see api/README.md
 │   ├── main.py
 │   ├── app/
 │   ├── Dockerfile
 │   └── sample.env
 ├── docker-compose.yml        # Orchestrates client, api, ollama & model pull
-├── sample.env                 # Root environment variable reference
-└── README.md                  # You are here
+├── sample.env                # Root environment variable reference
+└── README.md                 # You are here
 ```
 
 ---
 
 ## 📚 Further Reading
 
-- [`client/README.md`](./client/README.md) — Frontend setup, standalone Docker build, and project structure.
-- [`api/README.md`](./api/README.md) — Backend setup, API usage via Swagger UI, and project structure.
+* [`client/README.md`](./client/README.md) — Frontend setup, standalone Docker build, and project structure.
+* [`api/README.md`](./api/README.md) — Backend setup, API usage via Swagger UI, and project structure.
+
+---
+
+## Founder
+
+**Rustom Yadav**
+
+[rustomyadav@outlook.com](mailto:rustomyadav@outlook.com)
