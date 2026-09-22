@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"cd api && python main.py\" \"cd client && pnpm dev\"",
+    "setup": "pnpm install && cd client && pnpm install && cd ../api && uv sync",
+    "dev": "concurrently \"cd api && uvicorn main:app --reload\" \"cd client && pnpm dev\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
