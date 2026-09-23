@@ -23,31 +23,14 @@ Welcome to the frontend of the **Privacy-First Chatbot**. This is a modern, dark
 
 ## 🚀 Getting Started
 
-> **💡 Recommendation:** The easiest way to run the _entire_ application (Frontend + Backend + Database + ollama) is using the `pnpm run dev` or `docker compose up -d --build` from the root directory. With `pnpm run dev`, Ollama must already be running on your laptop and the model you pulled must exactly match `LLM_MODEL` in `api/.env`. With Docker Compose, no separate Ollama setup is needed: Docker starts Ollama and downloads the model configured in the root `.env` automatically.
->
-> If you want to run the frontend in isolation for development, follow the steps below.
+Follow these instructions to run the frontend in isolation for development or production.
 
-### 📋 Prerequisites
+### 📂 1. Navigate and Environment Setup
 
-Before you begin, ensure you have the following installed:
-
-- **Node.js** (v24 LTS recommended)
-- **pnpm** (v12.x required)
-- The **API Backend** must be running (see [../api/README.md](../api/README.md))
-
-### 📂 1. Navigate to the Client Directory
-
-All commands below must be run from inside the `client` folder:
+First, navigate to the client folder and create your local configuration. This step is required for all methods:
 
 ```bash
 cd client
-```
-
-### ⚙️ 2. Environment Setup
-
-Copy the sample environment file to create your local configuration:
-
-```bash
 cp sample.env .env.local
 ```
 
@@ -57,47 +40,65 @@ Inside `.env.local`, you will find:
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-**Note: Adjust the `NEXT_PUBLIC_API_URL` if your backend is running on a different host or port.**
+> **Note:** Adjust the `NEXT_PUBLIC_API_URL` if your backend is running on a different host or port.
 
-### 🛠️ 3. Running Locally (Development Mode)
+---
 
-If you are developing the frontend, running it locally without Docker provides the best experience (Hot Module Replacement, faster reloads).
-
-1. **Install Dependencies:**
-   Make sure you have [pnpm v12](https://pnpm.io/) activated.
-
-   ```bash
-   pnpm install
-   ```
-
-2. **Start the Development Server:**
-
-   ```bash
-   pnpm run dev
-   ```
-
-3. **Access the App:**
-   Open **[http://localhost:3000](http://localhost:3000)** in your browser.
-
-### 🐳 4. Running with Docker (Standalone)
+### 🐳 Option A: Running with Docker (Standalone)
 
 If you want to build and run _only_ the frontend via Docker:
 
-1. **Build the image:**
+**Prerequisites:**
 
-   ```bash
-      docker build \
-        --build-arg NEXT_PUBLIC_API_URL=http://localhost:8000 \
-        -t privacy-chatbot-client .
-   ```
+* **Docker** ([install guide](https://docs.docker.com/get-docker/))
 
-2. **Run the container:**
+#### Step 1: Build the Image
 
-   ```bash
-   docker run -p 3000:3000 privacy-chatbot-client
-   ```
+```bash
+docker build \
+  --build-arg NEXT_PUBLIC_API_URL=http://localhost:8000 \
+  -t privacy-chatbot-client .
+```
 
-   **Note: Adjust the `NEXT_PUBLIC_API_URL` if your backend is running on a different host or port.**
+#### Step 2: Run the Container
+
+```bash
+docker run -p 3000:3000 privacy-chatbot-client
+```
+
+#### Step 3: Access the App
+
+Open **http://localhost:3000** in your browser!
+
+---
+
+### 🛠️ Option B: Running Locally (Manual Dev Mode)
+
+If you are developing the frontend, running it locally without Docker provides the best experience (Hot Module Replacement, faster reloads).
+
+**Prerequisites:**
+
+* **Node.js** (v24 LTS recommended)
+* **pnpm** (v12.x required)
+* The **API Backend** must be running (see [`../api/README.md`](../api/README.md))
+
+#### Step 1: Install Dependencies
+
+Make sure you have [pnpm v12](https://pnpm.io/) activated.
+
+```bash
+pnpm install
+```
+
+#### Step 2: Start the Development Server
+
+```bash
+pnpm run dev
+```
+
+#### Step 3: Access the App
+
+Open **http://localhost:3000** in your browser!
 
 ---
 

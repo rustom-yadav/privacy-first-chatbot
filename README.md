@@ -227,7 +227,7 @@ For endpoint-level testing (Swagger UI, request/response formats, session manage
 
 ---
 
-## Founder
+## Author
 
 **Rustom Yadav**
 

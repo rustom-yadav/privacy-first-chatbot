@@ -25,39 +25,14 @@ Welcome to the backend of the **Privacy-First Chatbot**. This is a FastAPI-based
 
 ## 🚀 Getting Started
 
-> **💡 Recommendation:** The easiest way to run the _entire_ application
-> (Frontend + Backend + Database + Ollama) is using the `pnpm run dev` or
-> `docker compose up -d --build` from the root directory.
->
-> With `pnpm run dev`, Ollama must already be running on your laptop and the
-> model you pulled must exactly match `LLM_MODEL` in `api/.env`. With Docker
-> Compose, no separate Ollama setup is needed: Docker starts Ollama and
-> downloads the model configured in the root `.env` automatically.
->
-> If you want to run the API in isolation for development, follow the steps below.
+Follow these instructions to run the API in isolation for development or production.
 
-### 📋 Prerequisites
+### 📂 1. Navigate and Environment Setup
 
-Before you begin, ensure you have the following installed:
-
-- **Python** (v3.12 or newer)
-- **uv** ([installation guide](https://docs.astral.sh/uv/))
-- **Ollama** ([download Ollama](https://ollama.com/download))
-- The `llama3.2` Ollama model, or the model configured through `LLM_MODEL`
-
-### 📂 1. Navigate to the API Directory
-
-All commands below must be run from inside the `api` folder:
+First, navigate to the API folder and create your local configuration. This step is required for all methods:
 
 ```bash
 cd api
-```
-
-### ⚙️ 2. Environment Setup
-
-Copy the sample environment file to create your local configuration:
-
-```bash
 cp sample.env .env
 ```
 
@@ -71,85 +46,98 @@ EMBEDDING_MODEL=all-MiniLM-L6-v2
 ALLOWED_ORIGINS=["http://localhost:3000"]
 ```
 
-**Note: Adjust `OLLAMA_HOST`, `LLM_MODEL`, and `ALLOWED_ORIGINS` if your local setup uses different values.**
+> **Note:** Adjust `OLLAMA_HOST`, `LLM_MODEL`, and `ALLOWED_ORIGINS` if your local setup uses different values.
 
-### 🛠️ 3. Running Locally (Development Mode)
+### 🧠 2. Ensure Ollama is Running (Required)
 
-If you are developing the API, running it locally provides automatic reloads and direct access to the interactive API documentation.
+Regardless of whether you run the API via Docker or locally, your machine **must** have Ollama running at port `11434`.
 
-1. **Install Dependencies:**
-   Make sure you have [uv](https://docs.astral.sh/uv/) installed.
+1. Download and install [Ollama](https://ollama.com/download).
+2. Start Ollama and pull the model you set in your `.env` (default is `llama3.2`):
 
-   ```bash
-   uv sync
-   ```
+```bash
+ollama serve
+ollama pull llama3.2
+```
 
-2. **Prepare the Local LLM:**
+---
 
-   ```bash
-   ollama pull llama3.2
-   ```
-
-   Ensure Ollama is running before starting the API. If it is not running as a
-   desktop service, start it with:
-
-   ```bash
-   ollama serve
-   ```
-   You can verify that Ollama is running at
-   [http://localhost:11434](http://localhost:11434).
-
-3. **Start the Development Server:**
-
-   ```bash
-   uv run uvicorn main:app --reload --port 8000
-   ```
-
-4. **Access the API:**
-   Open **[http://localhost:8000/docs](http://localhost:8000/docs)** to use Swagger UI, or use **[http://localhost:8000/redoc](http://localhost:8000/redoc)** for ReDoc.
-
-### 🐳 4. Running with Docker (Standalone)
+### 🐳 Option A: Running with Docker (Standalone)
 
 If you want to build and run _only_ the API via Docker:
 
-1. **Build the image:**
+**Prerequisites:**
 
-   ```bash
-   docker build -t privacy-chatbot-api .
-   ```
+* **Docker** ([install guide](https://docs.docker.com/get-docker/))
 
-2. **Run the container:**
+#### Step 1: Build the Image
 
-   > **Note:** The container automatically fixes ownership of mounted folders
-   > at startup. Docker creates them when needed, so you do not need to create
-   > or `chown` them manually.
+```bash
+docker build -t privacy-chatbot-api .
+```
 
-   **On macOS or Windows (Git Bash / WSL):**
+#### Step 2: Run the Container
 
-   ```bash
-   docker run --rm -p 8000:8000 \
-     --env-file .env \
-     -e OLLAMA_HOST=http://host.docker.internal:11434 \
-     -v "${PWD}/chroma_db:/app/chroma_db" \
-     -v "${PWD}/uploaded_docs:/app/uploaded_docs" \
-     -v "${PWD}/local_db:/app/local_db" \
-     privacy-chatbot-api
-   ```
+> **Note:** The container automatically fixes ownership of mounted folders at startup. Docker creates them when needed, so you do not need to create or `chown` them manually.
 
-   **On Linux:**
+**On macOS or Windows (Git Bash / WSL):**
 
-   ```bash
-   docker run --rm --network host \
-     --env-file .env \
-     -e OLLAMA_HOST=http://localhost:11434 \
-     -v "${PWD}/chroma_db:/app/chroma_db" \
-     -v "${PWD}/uploaded_docs:/app/uploaded_docs" \
-     -v "${PWD}/local_db:/app/local_db" \
-     privacy-chatbot-api
-   ```
+```bash
+docker run --rm -p 8000:8000 \
+  --env-file .env \
+  -e OLLAMA_HOST=http://host.docker.internal:11434 \
+  -v "${PWD}/chroma_db:/app/chroma_db" \
+  -v "${PWD}/uploaded_docs:/app/uploaded_docs" \
+  -v "${PWD}/local_db:/app/local_db" \
+  privacy-chatbot-api
+```
 
-   > **Note:** `--network host` exposes the app directly on the host's
-   > network, so `-p 8000:8000` is not needed on Linux.
+**On Linux:**
+
+```bash
+docker run --rm --network host \
+  --env-file .env \
+  -e OLLAMA_HOST=http://localhost:11434 \
+  -v "${PWD}/chroma_db:/app/chroma_db" \
+  -v "${PWD}/uploaded_docs:/app/uploaded_docs" \
+  -v "${PWD}/local_db:/app/local_db" \
+  privacy-chatbot-api
+```
+
+> **Note:** `--network host` exposes the app directly on the host's network, so `-p 8000:8000` is not needed on Linux.
+
+#### Step 3: Access the API
+
+Open **http://localhost:8000/docs** to use Swagger UI, or use **http://localhost:8000/redoc** for ReDoc.
+
+---
+
+### 🛠️ Option B: Running Locally (Manual Dev Mode)
+
+If you are developing the API, running it locally provides automatic reloads and direct access to the interactive API documentation.
+
+**Prerequisites:**
+
+* **Python** (v3.12 or newer)
+* **uv** ([installation guide](https://docs.astral.sh/uv/))
+
+#### Step 1: Install Dependencies
+
+Make sure you have [uv](https://docs.astral.sh/uv/) installed.
+
+```bash
+uv sync
+```
+
+#### Step 2: Start the Development Server
+
+```bash
+uv run uvicorn main:app --reload --port 8000
+```
+
+#### Step 3: Access the API
+
+Open **http://localhost:8000/docs** to use Swagger UI, or use **http://localhost:8000/redoc** for ReDoc.
 
 ---
 
