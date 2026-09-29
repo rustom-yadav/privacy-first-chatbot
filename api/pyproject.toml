@@ -21,6 +21,7 @@ dependencies = [
     "rank-bm25>=0.2.2",
     "sentence-transformers>=5.7.0",
     "slowapi>=0.1.10",
+    "torch>=2.13.0",
     "uvicorn[standard]>=0.52.0",
 ]
 
@@ -40,3 +41,16 @@ dev = [
     "ruff>=0.16.1",
     "ty>=0.0.65",
 ]
+
+# Force CPU-only torch, pulled in transitively via sentence-transformers.
+# Without this, uv resolves the default CUDA/GPU wheels, which are large
+# and unnecessary since the container has no GPU access.
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
