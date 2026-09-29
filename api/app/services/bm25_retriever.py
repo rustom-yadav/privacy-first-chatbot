@@ -77,8 +77,6 @@ class BM25Retriever(BaseRetriever):
         top_indices = scores.argsort()[::-1][: self.k]
 
         # Filter out zero-score documents (no keyword match at all)
-        results = [
-            self.documents[i] for i in top_indices if scores[i] > 0
-        ]
+        results = [self.documents[i] for i in top_indices if scores[i] > 0]
 
         return results

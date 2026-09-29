@@ -115,12 +115,10 @@ async def clear_chat_history(request: Request, session_id: str):
 async def list_sessions(limit: int = 50, offset: int = 0):
     """Get all sessions with pagination (default 50 items)."""
     from app.services.session_service import session_service
-    
+
     # Run DB query in thread
-    sessions = await asyncio.to_thread(
-        session_service.get_all_sessions, limit, offset
-    )
-    
+    sessions = await asyncio.to_thread(session_service.get_all_sessions, limit, offset)
+
     return APIResponse(success=True, data=sessions)
 
 
@@ -128,12 +126,9 @@ async def list_sessions(limit: int = 50, offset: int = 0):
 async def get_session(session_id: str):
     """Get all messages for a specific session."""
     from app.services.session_service import session_service
-    
-    messages = await asyncio.to_thread(
-        session_service.get_session_messages, session_id
-    )
-    
+
+    messages = await asyncio.to_thread(session_service.get_session_messages, session_id)
+
     return APIResponse(
-        success=True, 
-        data=SessionMessagesData(session_id=session_id, messages=messages)
+        success=True, data=SessionMessagesData(session_id=session_id, messages=messages)
     )

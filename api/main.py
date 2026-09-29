@@ -9,6 +9,7 @@ Registers:
     - Route modules (chat, document)
     - Health check endpoint (pings Ollama + ChromaDB)
 """
+
 import asyncio
 import logging
 

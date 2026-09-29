@@ -79,7 +79,10 @@ class LLMService:
         """
         current_version = rag_service._docs_version
 
-        if current_version != self._cached_docs_version or self._cached_ensemble is None:
+        if (
+            current_version != self._cached_docs_version
+            or self._cached_ensemble is None
+        ):
             self._cached_ensemble = self._build_ensemble_retriever()
             self._cached_docs_version = current_version
             logger.info(f"Ensemble retriever rebuilt (docs_version={current_version})")
@@ -159,9 +162,7 @@ class LLMService:
         formatted_chunks = []
         for doc in docs:
             src_path = doc.metadata.get("source", "")
-            filename = (
-                doc.metadata.get("filename") or Path(src_path).name or "Document"
-            )
+            filename = doc.metadata.get("filename") or Path(src_path).name or "Document"
             page_raw = doc.metadata.get("page", 0)
             page = (page_raw + 1) if isinstance(page_raw, int) else page_raw
             content = doc.page_content.strip()
@@ -180,9 +181,7 @@ class LLMService:
 
         for doc in docs:
             src_path = doc.metadata.get("source", "")
-            filename = (
-                doc.metadata.get("filename") or Path(src_path).name or "Document"
-            )
+            filename = doc.metadata.get("filename") or Path(src_path).name or "Document"
             page_raw = doc.metadata.get("page", 0)
             page = (page_raw + 1) if isinstance(page_raw, int) else page_raw
 
@@ -195,9 +194,7 @@ class LLMService:
 
     # ── Main Response Generation ──────────────────────────────────────
 
-    def generate_response(
-        self, query: str, session_id: str
-    ) -> tuple[str, list[dict]]:
+    def generate_response(self, query: str, session_id: str) -> tuple[str, list[dict]]:
         """
         Full RAG pipeline:
             1. Retrieves chunks via EnsembleRetriever (Similarity + MMR + BM25 → RRF)
@@ -255,11 +252,7 @@ class LLMService:
 
         content = response.content
         if isinstance(content, str):
-            answer = (
-                content.strip()
-                if content
-                else "Could not generate an answer."
-            )
+            answer = content.strip() if content else "Could not generate an answer."
         else:
             answer = str(content)
 

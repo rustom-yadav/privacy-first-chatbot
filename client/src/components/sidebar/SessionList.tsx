@@ -25,10 +25,13 @@ export default function SessionList({
       <div className="space-y-1 px-2">
         {sessions.map((session) => {
           const isActive = session.session_id === activeSessionId;
-          const dateStr = new Date(session.last_message).toLocaleDateString(undefined, {
-            month: 'short',
-            day: 'numeric',
-          });
+          const dateStr = new Date(session.last_message).toLocaleDateString(
+            undefined,
+            {
+              month: 'short',
+              day: 'numeric',
+            }
+          );
 
           return (
             <div
@@ -44,7 +47,9 @@ export default function SessionList({
                 <p className="text-sm font-medium truncate">
                   {session.preview || 'Empty chat'}
                 </p>
-                <p className={`text-xs ${isActive ? 'text-brand-primary/70' : 'text-text-muted'}`}>
+                <p
+                  className={`text-xs ${isActive ? 'text-brand-primary/70' : 'text-text-muted'}`}
+                >
                   {dateStr}
                 </p>
               </div>

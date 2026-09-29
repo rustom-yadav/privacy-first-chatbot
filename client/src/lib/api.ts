@@ -66,12 +66,23 @@ export async function clearHistory(
   );
 }
 
-export async function listSessions(limit = 50, offset = 0): Promise<APIResponse<SessionSummary[]>> {
-  return apiFetch<SessionSummary[]>(`/api/chat/sessions?limit=${limit}&offset=${offset}`, { method: 'GET' });
+export async function listSessions(
+  limit = 50,
+  offset = 0
+): Promise<APIResponse<SessionSummary[]>> {
+  return apiFetch<SessionSummary[]>(
+    `/api/chat/sessions?limit=${limit}&offset=${offset}`,
+    { method: 'GET' }
+  );
 }
 
-export async function getSessionMessages(sessionId: string): Promise<APIResponse<SessionMessagesData>> {
-  return apiFetch<SessionMessagesData>(`/api/chat/sessions/${encodeURIComponent(sessionId)}`, { method: 'GET' });
+export async function getSessionMessages(
+  sessionId: string
+): Promise<APIResponse<SessionMessagesData>> {
+  return apiFetch<SessionMessagesData>(
+    `/api/chat/sessions/${encodeURIComponent(sessionId)}`,
+    { method: 'GET' }
+  );
 }
 
 // ── Document Endpoints ─────────────────────────────────────────────

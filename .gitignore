@@ -22,4 +22,4 @@ plan_files/
 # --- Environment & OS Files ---
 .env
 .DS_Store
-plan_files/
+plan_files

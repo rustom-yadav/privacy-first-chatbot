@@ -44,7 +44,9 @@ class RAGService:
         )
 
         self.bm25_retriever: BM25Retriever | None = None
-        self._docs_version: int = 0  # Incremented on ingest/delete for cache invalidation
+        self._docs_version: int = (
+            0  # Incremented on ingest/delete for cache invalidation
+        )
         self._init_bm25()
 
     # ── BM25 Index Management ────────────────────────────────────────
@@ -149,9 +151,7 @@ class RAGService:
             raise
         except Exception as e:  # noqa: BLE001
             logger.error(f"Error during document ingestion: {e}")
-            raise DocumentIngestionError(
-                f"Failed to ingest {file_path.name}: {e!s}"
-            )
+            raise DocumentIngestionError(f"Failed to ingest {file_path.name}: {e!s}")
 
     # ── Document Management ──────────────────────────────────────────
 

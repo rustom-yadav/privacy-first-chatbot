@@ -1,18 +1,18 @@
 # 🛡️ Privacy-First Chatbot
 
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge\&logo=docker\&logoColor=white)
-![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge\&logo=next.js\&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge\&logo=fastapi\&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![Ollama](https://img.shields.io/badge/Ollama-Local_LLM-black?style=for-the-badge)
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge\&logo=typescript\&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge\&logo=python\&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
 Welcome to the **Privacy-First Chatbot** — a fully local, Retrieval-Augmented Generation (RAG) chat application. Upload a PDF, ask questions about it, and get grounded answers with source attribution — without any of your data ever leaving your machine.
 
 This is a monorepo containing two services:
 
-* **[`client/`](./client/README.md)** — A Next.js 16 + React 19 + Tailwind CSS v4 frontend chat interface.
-* **[`api/`](./api/README.md)** — A FastAPI + LangChain + ChromaDB + SQLite + Ollama backend RAG engine.
+- **[`client/`](./client/README.md)** — A Next.js 16 + React 19 + Tailwind CSS v4 frontend chat interface.
+- **[`api/`](./api/README.md)** — A FastAPI + LangChain + ChromaDB + SQLite + Ollama backend RAG engine.
 
 Both are orchestrated together via Docker Compose or pnpm concurrently along with **Ollama** for fully local LLM inference.
 
@@ -20,21 +20,21 @@ Both are orchestrated together via Docker Compose or pnpm concurrently along wit
 
 ## ✨ Features
 
-* **🔒 Privacy-First Design** — PDF processing, embeddings, chat history, and LLM inference all run locally. No data is sent to a cloud AI provider.
+- **🔒 Privacy-First Design** — PDF processing, embeddings, chat history, and LLM inference all run locally. No data is sent to a cloud AI provider.
 
-* **💬 Real-time Chat with Source Attribution** — Ask questions and get AI answers backed by the exact filename and page number they came from.
+- **💬 Real-time Chat with Source Attribution** — Ask questions and get AI answers backed by the exact filename and page number they came from.
 
-* **📄 PDF Document Management** — Upload, list, and delete indexed PDF documents from a polished sidebar UI.
+- **📄 PDF Document Management** — Upload, list, and delete indexed PDF documents from a polished sidebar UI.
 
-* **🧠 Hybrid RAG Retrieval** — Combines semantic similarity, MMR diversity search, and BM25 keyword search for high-quality context.
+- **🧠 Hybrid RAG Retrieval** — Combines semantic similarity, MMR diversity search, and BM25 keyword search for high-quality context.
 
-* **💾 Persistent Sessions** — Chat history persists in SQLite database in the backend.
+- **💾 Persistent Sessions** — Chat history persists in SQLite database in the backend.
 
-* **🎨 Premium Dark UI** — Glassmorphism, smooth animations, and an emerald accent theme.
+- **🎨 Premium Dark UI** — Glassmorphism, smooth animations, and an emerald accent theme.
 
-* **🏥 Health Monitoring** — The client indicator checks whether the API is online or down.
+- **🏥 Health Monitoring** — The client indicator checks whether the API is online or down.
 
-* **🐳 One-Command Setup** — Spin up the frontend, backend, database, and local LLM together with a single docker command or with pnpm command.
+- **🐳 One-Command Setup** — Spin up the frontend, backend, database, and local LLM together with a single docker command or with pnpm command.
 
 ---
 
@@ -77,7 +77,7 @@ cd privacy-first-chatbot
 
 **Prerequisites:**
 
-* **Docker** ([install guide](https://docs.docker.com/get-docker/))
+- **Docker** ([install guide](https://docs.docker.com/get-docker/))
 
 #### Step 1: Environment Setup
 
@@ -117,11 +117,11 @@ docker compose down
 
 **Prerequisites:**
 
-* **Node.js** (v24 LTS)
-* **pnpm** (v12.x)
-* **Python** (v3.12+)
-* **uv** (Python package manager)
-* **Ollama** ([download here](https://ollama.com/download)) installed and running locally.
+- **Node.js** (v24 LTS)
+- **pnpm** (v12.x)
+- **Python** (v3.12+)
+- **uv** (Python package manager)
+- **Ollama** ([download here](https://ollama.com/download)) installed and running locally.
 
 #### Step 1: Environment Setup
 
@@ -161,7 +161,7 @@ From the project root, simply run:
 pnpm run dev
 ```
 
-*This command uses `concurrently` to start both the Next.js frontend and the FastAPI backend side-by-side.*
+_This command uses `concurrently` to start both the Next.js frontend and the FastAPI backend side-by-side._
 
 #### Step 5: Access the App
 
@@ -222,8 +222,8 @@ For endpoint-level testing (Swagger UI, request/response formats, session manage
 
 ## 📚 Further Reading
 
-* [`client/README.md`](./client/README.md) — Frontend setup, standalone Docker build, and project structure.
-* [`api/README.md`](./api/README.md) — Backend setup, API usage via Swagger UI, and project structure.
+- [`client/README.md`](./client/README.md) — Frontend setup, standalone Docker build, and project structure.
+- [`api/README.md`](./api/README.md) — Backend setup, API usage via Swagger UI, and project structure.
 
 ---
 

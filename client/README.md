@@ -50,7 +50,7 @@ If you want to build and run _only_ the frontend via Docker:
 
 **Prerequisites:**
 
-* **Docker** ([install guide](https://docs.docker.com/get-docker/))
+- **Docker** ([install guide](https://docs.docker.com/get-docker/))
 
 #### Step 1: Build the Image
 
@@ -78,9 +78,9 @@ If you are developing the frontend, running it locally without Docker provides t
 
 **Prerequisites:**
 
-* **Node.js** (v24 LTS recommended)
-* **pnpm** (v12.x required)
-* The **API Backend** must be running (see [`../api/README.md`](../api/README.md))
+- **Node.js** (v24 LTS recommended)
+- **pnpm** (v12.x required)
+- The **API Backend** must be running (see [`../api/README.md`](../api/README.md))
 
 #### Step 1: Install Dependencies
 

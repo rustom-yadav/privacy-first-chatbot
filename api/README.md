@@ -68,7 +68,7 @@ If you want to build and run _only_ the API via Docker:
 
 **Prerequisites:**
 
-* **Docker** ([install guide](https://docs.docker.com/get-docker/))
+- **Docker** ([install guide](https://docs.docker.com/get-docker/))
 
 #### Step 1: Build the Image
 
@@ -118,8 +118,8 @@ If you are developing the API, running it locally provides automatic reloads and
 
 **Prerequisites:**
 
-* **Python** (v3.12 or newer)
-* **uv** ([installation guide](https://docs.astral.sh/uv/))
+- **Python** (v3.12 or newer)
+- **uv** ([installation guide](https://docs.astral.sh/uv/))
 
 #### Step 1: Install Dependencies
 
@@ -167,6 +167,7 @@ Open **http://localhost:8000/docs** to use Swagger UI, or use **http://localhost
 
    Click **Execute**. The API combines similarity, MMR, and BM25 retrieval,
    then sends the relevant context to Ollama for a grounded answer.
+
 6. **Continue or Clear a Session:** Copy the `session_id` returned by the chat
    response into the next chat request to retain conversation context. To remove
    that history, use `DELETE /api/chat/history` and provide the same `session_id`
@@ -179,20 +180,20 @@ Open **http://localhost:8000/docs** to use Swagger UI, or use **http://localhost
 
 ## 🏗️ Tech Stack
 
-| Technology | Purpose |
-| --- | --- |
-| **Python 3.12+** | Backend runtime |
-| **FastAPI** | API framework with automatic OpenAPI documentation |
-| **Uvicorn** | ASGI server for running the FastAPI application |
-| **LangChain** | Document processing and RAG orchestration |
-| **Ollama** | Fully local LLM inference |
-| **ChromaDB** | Persistent vector database for document chunks |
-| **Hugging Face Sentence Transformers** | Local document embeddings |
-| **BM25** | Keyword-based document retrieval |
-| **pypdf** | PDF text extraction |
-| **SQLite** | Persistent anonymous chat-session history |
-| **uv** | Python dependency and environment management |
-| **Docker** | Standalone containerized API deployment |
+| Technology                             | Purpose                                            |
+| -------------------------------------- | -------------------------------------------------- |
+| **Python 3.12+**                       | Backend runtime                                    |
+| **FastAPI**                            | API framework with automatic OpenAPI documentation |
+| **Uvicorn**                            | ASGI server for running the FastAPI application    |
+| **LangChain**                          | Document processing and RAG orchestration          |
+| **Ollama**                             | Fully local LLM inference                          |
+| **ChromaDB**                           | Persistent vector database for document chunks     |
+| **Hugging Face Sentence Transformers** | Local document embeddings                          |
+| **BM25**                               | Keyword-based document retrieval                   |
+| **pypdf**                              | PDF text extraction                                |
+| **SQLite**                             | Persistent anonymous chat-session history          |
+| **uv**                                 | Python dependency and environment management       |
+| **Docker**                             | Standalone containerized API deployment            |
 
 ---
 

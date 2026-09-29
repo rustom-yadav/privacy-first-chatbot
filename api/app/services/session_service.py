@@ -52,8 +52,7 @@ class SessionService:
                 )
             """)
             conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_session_id "
-                "ON chat_messages(session_id)"
+                "CREATE INDEX IF NOT EXISTS idx_session_id ON chat_messages(session_id)"
             )
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_session_created "
@@ -131,9 +130,7 @@ class SessionService:
             deleted = cursor.rowcount
 
         if deleted > 0:
-            logger.info(
-                f"Cleared session {session_id}: {deleted} messages deleted"
-            )
+            logger.info(f"Cleared session {session_id}: {deleted} messages deleted")
         else:
             logger.info(f"Session {session_id} had no messages to clear")
 
@@ -170,7 +167,7 @@ class SessionService:
                 ORDER BY last_message DESC
                 LIMIT ? OFFSET ?
                 """,
-                (limit, offset)
+                (limit, offset),
             ).fetchall()
 
         # Process and truncate preview to ~50 chars
@@ -179,14 +176,16 @@ class SessionService:
             preview_text = row["preview"] or "Empty chat"
             if len(preview_text) > 50:
                 preview_text = preview_text[:47] + "..."
-                
-            results.append({
-                "session_id": row["session_id"],
-                "message_count": row["message_count"],
-                "first_message": row["first_message"],
-                "last_message": row["last_message"],
-                "preview": preview_text,
-            })
+
+            results.append(
+                {
+                    "session_id": row["session_id"],
+                    "message_count": row["message_count"],
+                    "first_message": row["first_message"],
+                    "last_message": row["last_message"],
+                    "preview": preview_text,
+                }
+            )
         return results
 
     def get_session_messages(self, session_id: str) -> list[dict]:
@@ -198,9 +197,9 @@ class SessionService:
                 WHERE session_id = ?
                 ORDER BY created_at ASC
                 """,
-                (session_id,)
+                (session_id,),
             ).fetchall()
-            
+
         return [dict(row) for row in rows]
 
 

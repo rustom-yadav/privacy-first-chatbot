@@ -56,7 +56,6 @@ export interface SessionMessagesData {
   messages: SessionMessage[];
 }
 
-
 // ── Document Schemas ───────────────────────────────────────────────
 
 export interface DocumentInfo {

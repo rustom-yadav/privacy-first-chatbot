@@ -30,9 +30,7 @@ async def app_exception_handler(request: Request, exc: AppError) -> JSONResponse
     )
 
 
-async def unhandled_exception_handler(
-    request: Request, exc: Exception
-) -> JSONResponse:
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """
     Catches any unhandled exception that slips through.
     Logs the full stack trace but returns a safe generic message to the client.
