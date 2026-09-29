@@ -43,15 +43,18 @@ services:
       - ollama
     environment:
       - OLLAMA_HOST=${OLLAMA_HOST}
+      - LLM_MODEL=${LLM_MODEL} # ← ye line add karo
     entrypoint: ['/bin/sh', '-c']
-    command: |
-      echo "Waiting for Ollama server to be ready..."
-      while ! ollama list > /dev/null 2>&1; do
-        sleep 2
-      done
-      echo "Pulling model $${LLM_MODEL}..."
-      ollama pull $${LLM_MODEL}
-      echo "Model $${LLM_MODEL} is ready!"
+    command:
+      - |
+        set -e
+        echo "Waiting for Ollama server to be ready..."
+        while ! ollama list > /dev/null 2>&1; do
+          sleep 2
+        done
+        echo "Pulling model $${LLM_MODEL}..."
+        ollama pull $${LLM_MODEL}
+        echo "Model $${LLM_MODEL} is ready!"
 
 volumes:
   ollama_models:
