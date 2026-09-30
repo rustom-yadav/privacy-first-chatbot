@@ -1,12 +1,11 @@
 {
-  "name": "Privacy_First_Chatbot",
+  "name": "privacy-first-chatbot",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "Secure, local RAG pipeline using FastAPI, LangChain, and Ollama",
   "scripts": {
     "setup": "pnpm install && cd client && pnpm install && cd ../api && uv sync",
-    "dev": "concurrently \"cd api && uvicorn main:app --reload\" \"cd client && pnpm dev\"",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"cd api && uv run uvicorn main:app --reload\" \"cd client && pnpm dev\"",
     "format:client": "prettier --write .",
     "format:api": "cd api && uv run ruff format .",
     "format": "pnpm run format:client && pnpm run format:api",
@@ -20,17 +19,12 @@
     "lint:fix:api": "cd api && uv run ruff check --fix .",
     "lint:fix": "pnpm run lint:fix:client && pnpm run lint:fix:api"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "12.3.4",
-      "onFail": "download"
-    }
+  "license": "MIT",
+  "packageManager": "pnpm@12.6.0",
+  "engines": {
+    "node": "24.x",
+    "pnpm": "12.x"
   },
-  "type": "module",
   "devDependencies": {
     "concurrently": "^10.0.5",
     "prettier": "^3.9.5"
