@@ -8,6 +8,11 @@
     "start": "next start",
     "lint": "eslint ."
   },
+  "packageManager": "pnpm@12.6.0",
+  "engines": {
+    "node": "24.x",
+    "pnpm": "12.x"
+  },
   "dependencies": {
     "next": "16.2.10",
     "react": "19.2.4",
@@ -15,7 +20,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "^1.0.0",
