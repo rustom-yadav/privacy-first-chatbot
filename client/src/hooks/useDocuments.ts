@@ -65,7 +65,7 @@ export function useDocuments() {
 
         if (response.success && response.data) {
           setUploadSuccess(
-            `"${response.data.filename}" uploaded — ${response.data.chunk_count} chunks created.`
+            `"${response.data.filename}" uploaded — ${response.data.chunk_count} chunks created.`,
           );
           // Refresh document list
           await fetchDocuments();
@@ -81,7 +81,7 @@ export function useDocuments() {
         setIsUploading(false);
       }
     },
-    [fetchDocuments]
+    [fetchDocuments],
   );
 
   /**
@@ -107,7 +107,7 @@ export function useDocuments() {
         return false;
       }
     },
-    [fetchDocuments]
+    [fetchDocuments],
   );
 
   /**

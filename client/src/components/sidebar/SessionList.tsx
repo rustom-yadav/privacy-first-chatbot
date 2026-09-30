@@ -30,7 +30,7 @@ export default function SessionList({
             {
               month: 'short',
               day: 'numeric',
-            }
+            },
           );
 
           return (

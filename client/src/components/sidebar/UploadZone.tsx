@@ -19,7 +19,7 @@ export default function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
       // Reset input
       if (inputRef.current) inputRef.current.value = '';
     },
-    [onUpload]
+    [onUpload],
   );
 
   const handleDrop = useCallback(
@@ -28,7 +28,7 @@ export default function UploadZone({ onUpload, isUploading }: UploadZoneProps) {
       setIsDragOver(false);
       handleFiles(e.dataTransfer.files);
     },
-    [handleFiles]
+    [handleFiles],
   );
 
   const handleDragOver = (e: React.DragEvent) => {

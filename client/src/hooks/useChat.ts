@@ -92,7 +92,7 @@ export function useChat() {
         setIsLoading(false);
       }
     },
-    [isLoading, sessionId]
+    [isLoading, sessionId],
   );
 
   //Starts a new chat session — clears messages and generates new session ID.
