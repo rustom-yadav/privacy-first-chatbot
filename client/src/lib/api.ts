@@ -16,7 +16,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 async function apiFetch<T>(
   path: string,
-  options?: RequestInit
+  options?: RequestInit,
 ): Promise<APIResponse<T>> {
   const url = `${API_BASE}${path}`;
 
@@ -44,7 +44,7 @@ async function apiFetch<T>(
 
 export async function sendChat(
   query: string,
-  sessionId?: string | null
+  sessionId?: string | null,
 ): Promise<APIResponse<ChatResponseData>> {
   return apiFetch<ChatResponseData>('/api/chat', {
     method: 'POST',
@@ -56,39 +56,39 @@ export async function sendChat(
 }
 
 export async function clearHistory(
-  sessionId: string
+  sessionId: string,
 ): Promise<APIResponse<ClearHistoryResponseData>> {
   return apiFetch<ClearHistoryResponseData>(
     `/api/chat/history?session_id=${encodeURIComponent(sessionId)}`,
     {
       method: 'DELETE',
-    }
+    },
   );
 }
 
 export async function listSessions(
   limit = 50,
-  offset = 0
+  offset = 0,
 ): Promise<APIResponse<SessionSummary[]>> {
   return apiFetch<SessionSummary[]>(
     `/api/chat/sessions?limit=${limit}&offset=${offset}`,
-    { method: 'GET' }
+    { method: 'GET' },
   );
 }
 
 export async function getSessionMessages(
-  sessionId: string
+  sessionId: string,
 ): Promise<APIResponse<SessionMessagesData>> {
   return apiFetch<SessionMessagesData>(
     `/api/chat/sessions/${encodeURIComponent(sessionId)}`,
-    { method: 'GET' }
+    { method: 'GET' },
   );
 }
 
 // ── Document Endpoints ─────────────────────────────────────────────
 
 export async function uploadDocument(
-  file: File
+  file: File,
 ): Promise<APIResponse<UploadResponseData>> {
   const formData = new FormData();
   formData.append('file', file);
@@ -121,7 +121,7 @@ export async function listDocuments(): Promise<APIResponse<DocumentInfo[]>> {
 }
 
 export async function deleteDocument(
-  filename: string
+  filename: string,
 ): Promise<APIResponse<{ message: string }>> {
   return apiFetch(`/api/document/${encodeURIComponent(filename)}`, {
     method: 'DELETE',

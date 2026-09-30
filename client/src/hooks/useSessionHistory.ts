@@ -15,7 +15,7 @@ export function useSessionHistory(currentSessionId: string) {
       await clearHistory(id); // Existing backend delete route
       fetchSessions(); // Refresh list
     },
-    [fetchSessions]
+    [fetchSessions],
   );
 
   // Refetch when currentSessionId changes (meaning new chat started or swapped)
